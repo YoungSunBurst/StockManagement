@@ -1,4 +1,10 @@
 {
   "name": "StockManagement",
-  "displayName": "StockManagement"
+  "displayName": "StockManagement",
+  "expo": {
+    "slug": "StockManagement",
+    "name": "StockManagement",
+    "sdkVersion": "31.0.0",
+    "entryPoint": "/Users/youngsun/Projects/ReactNative/StockManagement/.vscode/exponentIndex.js"
+  }
 }

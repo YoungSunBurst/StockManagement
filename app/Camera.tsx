@@ -36,9 +36,10 @@ export default class Camera extends Component<IProps> {
         <RNCamera
           style={styles.preview}
           type={RNCamera.Constants.Type.back}
-          flashMode={RNCamera.Constants.FlashMode.on}
+          flashMode={RNCamera.Constants.FlashMode.off}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
+          captureAudio={false}
         >
           {({ camera, status }) => {
             if (status !== 'READY') return <PendingView />;

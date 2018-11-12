@@ -3,6 +3,7 @@ import React from 'react';
 import { Component } from 'react';
 import { StyleSheet, Text, View, Image, Button} from 'react-native';
 import Camera from './Camera';
+import ItemListView from './List';
 
 // import BadInstagramCloneApp from './camera/camera';
 
@@ -15,6 +16,7 @@ import Camera from './Camera';
 
 enum EnumAppState {
   main,
+  material,
   camera,
 };
 
@@ -40,11 +42,20 @@ export default class App extends Component<IProps, IState> {
       capturedImage: undefined,
     }
   }  
-  
-  handleCameraButton = () => {
-    console.log('handleCameraButton');
-    this.setState({mainState: EnumAppState.camera});
+
+  handleButton = (state: EnumAppState) => {
+    console.log('handleCameraButton' + state);
+    this.setState({mainState: state});
   }
+
+  handleReturnMain = () => {
+    this.setState({mainState: EnumAppState.main});
+  }
+
+  // handleCameraButton = () => {
+  //   console.log('handleCameraButton');
+  //   this.setState({mainState: EnumAppState.camera});
+  // }
 
   handleCameraCaptrue = ( imageUri: string ) => {
     this.setState({mainState: EnumAppState.main, capturedImage: {uri: imageUri, width: 200, height:200}});
@@ -59,10 +70,18 @@ export default class App extends Component<IProps, IState> {
           <Image source={{uri: this.state.capturedImage.uri}} style={{width: 200, height: 200}} />
           }
           <Button
-            onPress={this.handleCameraButton}
+            onPress={ () => this.handleButton(EnumAppState.material)}
+            title="Material"
+          />
+          <Button
+            onPress={() => this.handleButton(EnumAppState.camera)}
             title="Camera test"
           />
         </View>
+      );
+    } else if (this.state.mainState === EnumAppState.material){
+      return (
+        <ItemListView title={'Material'} backToMain={this.handleReturnMain}/>
       );
     } else {
       return (

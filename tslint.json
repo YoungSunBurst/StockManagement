@@ -57,7 +57,7 @@
       "timeEnd",
       "trace"
     ],
-    "no-default-export": false, // 지켜본다.
+    "no-default-export": false, 
     "no-consecutive-blank-lines": true,
     "no-construct": true,
     "no-debugger": true,

@@ -25,7 +25,7 @@ const PendingView = () => (
 );
 
 interface IProps {
-  handleCameraCaptrue: (imageuri: string) => void;
+  handleCameraCaptrue: (imageuri: string, width: number, height: number) => void;
 };
 
 
@@ -61,7 +61,9 @@ export default class Camera extends Component<IProps> {
     const data: TakePictureResponse = await camera.takePictureAsync(options);
     //  eslint-disable-next-line
     console.log(data.uri);
-    this.props.handleCameraCaptrue(data.uri);
+    if ( undefined !== data.base64 ) {
+      this.props.handleCameraCaptrue(data.base64, data.width, data.height);
+    }
   }
 }
 

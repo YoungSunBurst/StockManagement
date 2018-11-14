@@ -2,17 +2,8 @@
 import React from 'react';
 import { Component } from 'react';
 import { StyleSheet, Text, View, Image, Button} from 'react-native';
-import Camera from './Camera';
-import ItemListView from './List';
-
-// import BadInstagramCloneApp from './camera/camera';
-
-// const instructions = Platform.select({
-//   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-//   android:
-//     'Double tap R on your keyboard to reload,\n' +
-//     'Shake or press menu button for dev menu',
-// });
+import Camera from './component/Camera';
+import ItemListView from './component/List';
 
 enum EnumAppState {
   main,
@@ -57,8 +48,8 @@ export default class App extends Component<IProps, IState> {
   //   this.setState({mainState: EnumAppState.camera});
   // }
 
-  handleCameraCaptrue = ( imageUri: string ) => {
-    this.setState({mainState: EnumAppState.main, capturedImage: {uri: imageUri, width: 200, height:200}});
+  handleCameraCaptrue = ( imageUri: string , width: number, height: number) => {
+    this.setState({mainState: EnumAppState.main, capturedImage: {uri:  'data:image/png;base64,' + imageUri, width: width, height:height}});
   }
 
   render() {

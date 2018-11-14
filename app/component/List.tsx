@@ -5,28 +5,32 @@ import { StyleSheet, Text, View, Image, Button, TouchableOpacity, ScrollView, Im
 import { IMaterial } from '../models/Types';
 import AddPage from './AddPage';
 import { dummy } from '../Dummy';
+import { useMaterial } from '../models/Material';
 
 
 
 interface IItemProps extends IMaterial{
   idx: number;
+  changeCount: (idx: number, count: number) => void;
 };
 
 interface IItemState {
   // for test, this will be replaced redux props.
-  count: number;
+  // count: number;
 };
 
 class ListItem extends Component<IItemProps, IItemState> {
   constructor(props: IItemProps) {
     super(props);
     this.state = {
-      count: props.count,
+      // count: props.count,
     }
   }
 
   handleCountChange = ( change: number ) => {
-    this.setState({ count: this.state.count + change});
+    // this.setState({ count: this.state.count + change});
+    let newCount = this.props.count + change;
+    this.props.changeCount(this.props.idx, newCount);
   }
 
   render() {
@@ -34,22 +38,26 @@ class ListItem extends Component<IItemProps, IItemState> {
       <View style={itemstyles.container}>
         <Image style={itemstyles.thumb as ImageStyle} source={{uri: this.props.image.base64}} />
         <Text>{this.props.name}</Text>
-        <TouchableOpacity  onPress={() => this.handleCountChange(-1)} disabled={this.state.count < 1}>
+        <TouchableOpacity  onPress={() => this.handleCountChange(-1)} disabled={this.props.count < 1}>
             <Image source={require('../img/minus_button.png')} style={{width: 40, height: 40}}/>
         </TouchableOpacity>
-        <Text>{this.state.count}</Text>
+        <Text>{this.props.count}</Text>
         <TouchableOpacity  onPress={() => this.handleCountChange(+1)} >
             <Image source={require('../img/plus_button.png')} style={{width: 40, height: 40}}/>
         </TouchableOpacity>
         <TouchableOpacity>
             <Image source={require('../img/info_button.png')} style={{width: 40, height: 40}}/>
         </TouchableOpacity>
-
       </View>
     );
   }
-
 }
+
+const WrapperdListItem = useMaterial(ListItem);
+
+
+//
+
 
 const itemstyles = StyleSheet.create({
   container: {
@@ -75,10 +83,14 @@ const itemstyles = StyleSheet.create({
 interface IProps {
   title: string;
   backToMain: () => void;
+  materials: Array<IMaterial>
+  loadDataFromStorage: ((complete: () => void) => void) | undefined;
+  saveDataToStorage: (() => void) | undefined;
 };
 
 interface IState {
   listState: EnumListState;
+  loading: Boolean;
 
 };
 
@@ -90,12 +102,25 @@ enum EnumListState {
 }
 
 
-export default class ItemListView extends Component<IProps, IState> {
+class ItemListView extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
       listState: EnumListState.main,
+      loading: true,
     }
+  }
+  componentWillMount() {
+    if( undefined !== this.props.loadDataFromStorage ) {
+      this.props.loadDataFromStorage(() => {this.setState({loading: false})});
+    } 
+  }
+
+  componentWillReceiveProps(nextProps: IProps) {
+    if( this.props.materials.length !== nextProps.materials.length ) {
+      this.setState({listState: EnumListState.main});
+    }
+
   }
 
   handleAddButton = () => {
@@ -106,11 +131,18 @@ export default class ItemListView extends Component<IProps, IState> {
     this.setState({ listState: EnumListState.main});
   }
 
+  handleBackToMain = () => {
+    if( undefined !== this.props.saveDataToStorage ) {
+      this.props.saveDataToStorage();
+    }
+    this.props.backToMain();
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.titleBar}>
-            <TouchableOpacity style={styles.backToMain} onPress={ () => {this.props.backToMain()}} >
+            <TouchableOpacity style={styles.backToMain} onPress={this.handleBackToMain} >
             <Image source={require('../img/back_button.png')} style={{width: 40, height: 40}}/>
           </TouchableOpacity>
           <Text style={styles.title}>{this.props.title}</Text>
@@ -119,7 +151,11 @@ export default class ItemListView extends Component<IProps, IState> {
           </TouchableOpacity>
         </View>
         <ScrollView style={styles.contents}>
-        {dummy.map( (item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count} key={index} /> )}
+        {
+          this.state.loading === false ? 
+          this.props.materials.map( (item, index) => <WrapperdListItem idx={index} name={item.name} image={item.image} count={item.count} key={index} /> ) :
+          <Text>loading..</Text>
+        }
         </ScrollView>
         <View style={styles.footer}/>
         {
@@ -186,3 +222,5 @@ const styles = StyleSheet.create({
   //   marginBottom: 5,
   // },
 });
+
+export default useMaterial(ItemListView);

@@ -3,6 +3,7 @@ import { Component } from 'react';
 import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button } from 'react-native';
 import Camera from './Camera';
 import { IImage } from '../models/Types';
+import { useMaterial } from '../models/Material';
 
 enum EnumPageState {
   main,
@@ -11,6 +12,7 @@ enum EnumPageState {
 
 interface IProps {
   cancel: () => void;
+  addData: (capturedImage: IImage, name: string, price: number) => void;
 };
 
 interface IState {
@@ -23,7 +25,7 @@ interface IState {
 
 };
 
-export default class AddPage extends Component<IProps, IState> {
+class AddPage extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
@@ -43,7 +45,7 @@ export default class AddPage extends Component<IProps, IState> {
     this.setState({pageState: EnumPageState.main, capturedImage: {base64: 'data:image/png;base64,' + imageUri, width: 200, height:200}});
   }
 
-  handlePriceInput(text: string){
+  handlePriceInput = (text: string) => {
     let newText = text.replace(/[^0-9]/g, '');
     
 
@@ -54,6 +56,14 @@ export default class AddPage extends Component<IProps, IState> {
         price: parseInt(newText)
       });
     }
+  }
+
+  handleApply = () => {
+    const {capturedImage, name, price} = this.state;
+    if ( undefined !== capturedImage) {
+      this.props.addData(capturedImage, name, price);
+    }
+    // this.props.cancel();
   }
 
   render() {
@@ -87,7 +97,7 @@ export default class AddPage extends Component<IProps, IState> {
                 />
               </View>
               <View style={styles.confirm}>
-                <Button title="Apply" onPress={()=>{}}/>
+                <Button title="Apply" onPress={this.handleApply}/>
               </View>
               </View>
           </TouchableWithoutFeedback>
@@ -172,3 +182,5 @@ const styles = StyleSheet.create({
   }
 
 });
+
+export default useMaterial(AddPage);

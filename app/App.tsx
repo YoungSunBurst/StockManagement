@@ -4,6 +4,7 @@ import { Component } from 'react';
 import { StyleSheet, Text, View, Image, Button} from 'react-native';
 import Camera from './component/Camera';
 import ItemListView from './component/List';
+import { MaterialProvider } from './models/Material';
 
 enum EnumAppState {
   main,
@@ -55,24 +56,28 @@ export default class App extends Component<IProps, IState> {
   render() {
     if (this.state.mainState === EnumAppState.main) {
       return (
-        <View style={styles.container}>
-          <Text style={styles.title}>Stock Management</Text>
-          { this.state.capturedImage !== undefined && 
-          <Image source={{uri: this.state.capturedImage.uri}} style={{width: 200, height: 200}} />
-          }
-          <Button
-            onPress={ () => this.handleButton(EnumAppState.material)}
-            title="Material"
-          />
-          <Button
-            onPress={() => this.handleButton(EnumAppState.camera)}
-            title="Camera test"
-          />
-        </View>
+        <MaterialProvider>
+          <View style={styles.container}>
+            <Text style={styles.title}>Stock Management</Text>
+            {this.state.capturedImage !== undefined &&
+              <Image source={{ uri: this.state.capturedImage.uri }} style={{ width: 200, height: 200 }} />
+            }
+            <Button
+              onPress={() => this.handleButton(EnumAppState.material)}
+              title="Material"
+            />
+            <Button
+              onPress={() => this.handleButton(EnumAppState.camera)}
+              title="Camera test"
+            />
+          </View>
+        </MaterialProvider>
       );
-    } else if (this.state.mainState === EnumAppState.material){
+    } else if (this.state.mainState === EnumAppState.material) {
       return (
-        <ItemListView title={'Material'} backToMain={this.handleReturnMain}/>
+        <MaterialProvider>
+          <ItemListView title={'Material'} backToMain={this.handleReturnMain} />
+        </MaterialProvider>
       );
     } else {
       return (

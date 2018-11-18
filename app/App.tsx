@@ -27,12 +27,16 @@ interface IState {
 };
 
 export default class App extends Component<IProps, IState> {
+  private materialInstance: React.RefObject<MaterialProvider>;
+
+
   constructor(props: IProps) {
     super(props);
     this.state = {
       mainState: EnumAppState.main,
       capturedImage: undefined,
     }
+    this.materialInstance = React.createRef();
   }  
 
   handleButton = (state: EnumAppState) => {
@@ -53,13 +57,19 @@ export default class App extends Component<IProps, IState> {
     this.setState({mainState: EnumAppState.main, capturedImage: {uri:  'data:image/png;base64,' + imageUri, width: width, height:height}});
   }
 
+  handleInitialize = () => {
+    if( this.materialInstance.current !== null ) {
+      this.materialInstance.current.actions.initialize();
+    }
+  }
+
   render() {
     if (this.state.mainState === EnumAppState.main) {
       return (
-        <MaterialProvider>
+        <MaterialProvider ref={this.materialInstance}>
           <View style={styles.container}>
             <Text style={styles.title}>Stock Management</Text>
-            {this.state.capturedImage !== undefined &&
+            {this.state.capturedImage !== undefined && 
               <Image source={{ uri: this.state.capturedImage.uri }} style={{ width: 200, height: 200 }} />
             }
             <Button
@@ -69,6 +79,10 @@ export default class App extends Component<IProps, IState> {
             <Button
               onPress={() => this.handleButton(EnumAppState.camera)}
               title="Camera test"
+            />
+            <Button
+              onPress={this.handleInitialize}
+              title="Initialize Storage"
             />
           </View>
         </MaterialProvider>

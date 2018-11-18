@@ -191,9 +191,9 @@ const styles = StyleSheet.create({
     height: 40,
   },
   title: {
-
+    width: 100,
     textAlign: "center",
-  
+    alignSelf: 'center'
   },
   addButton: {
     // alignSelf: 'flex-end',

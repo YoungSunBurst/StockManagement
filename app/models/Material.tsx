@@ -76,6 +76,14 @@ class MaterialProvider extends Component<{}, IContextValue> {
       const newMaterial = this.state.materials.slice();
       newMaterial[idx].count = count;
       this.setState({materials: newMaterial});
+    },
+    initialize: ()  => {
+      this.setState({materials: []});
+      const callback = (success: boolean) => {
+        console.log('initialize' + success);
+        alert('initialize' + (false !== success) ? 'success' : 'fail');
+      };
+      storeData('MaterialList', '[]', callback);
     }
   }
   render() {
@@ -92,8 +100,6 @@ class MaterialProvider extends Component<{}, IContextValue> {
   }
 }
 
-
-// :: HoC 를 사용
 function useMaterial(WrappedComponent: any) {
   return function useMaterial(props: any) {
     return (
@@ -115,7 +121,6 @@ function useMaterial(WrappedComponent: any) {
   }
 }
 
-// 내보내줍니다.
 export {
   MaterialProvider,
   MaterialConsumer,

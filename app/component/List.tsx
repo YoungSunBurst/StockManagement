@@ -1,84 +1,12 @@
 
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, Text, View, Image, Button, TouchableOpacity, ScrollView, ImageStyle} from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView} from 'react-native';
 import { IMaterial } from '../models/Types';
 import AddPage from './AddPage';
-import { dummy } from '../Dummy';
 import { useMaterial } from '../models/Material';
-
-
-
-interface IItemProps extends IMaterial{
-  idx: number;
-  changeCount: (idx: number, count: number) => void;
-};
-
-interface IItemState {
-  // for test, this will be replaced redux props.
-  // count: number;
-};
-
-class ListItem extends Component<IItemProps, IItemState> {
-  constructor(props: IItemProps) {
-    super(props);
-    this.state = {
-      // count: props.count,
-    }
-  }
-
-  handleCountChange = ( change: number ) => {
-    // this.setState({ count: this.state.count + change});
-    let newCount = this.props.count + change;
-    this.props.changeCount(this.props.idx, newCount);
-  }
-
-  render() {
-    return (
-      <View style={itemstyles.container}>
-        <Image style={itemstyles.thumb as ImageStyle} source={{uri: this.props.image.base64}} />
-        <Text>{this.props.name}</Text>
-        <TouchableOpacity  onPress={() => this.handleCountChange(-1)} disabled={this.props.count < 1}>
-            <Image source={require('../img/minus_button.png')} style={{width: 40, height: 40}}/>
-        </TouchableOpacity>
-        <Text>{this.props.count}</Text>
-        <TouchableOpacity  onPress={() => this.handleCountChange(+1)} >
-            <Image source={require('../img/plus_button.png')} style={{width: 40, height: 40}}/>
-        </TouchableOpacity>
-        <TouchableOpacity>
-            <Image source={require('../img/info_button.png')} style={{width: 40, height: 40}}/>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
-
-const WrapperdListItem = useMaterial(ListItem);
-
-
-//
-
-
-const itemstyles = StyleSheet.create({
-  container: {
-    // flex: 1,
-    flexDirection: 'row',
-    height: 80,
-    // borderStyle: 'solid',
-    borderColor: '#00000055',
-    borderWidth: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  }, 
-  thumb: {
-    // borderStyle: 'solid',
-    borderColor: '#11111111',
-    borderWidth: 1,
-    width: 60,
-    height: 60,
-  }
-});
+import ListItem from './ListItem';
+import { number } from 'prop-types';
 
 interface IProps {
   title: string;
@@ -90,14 +18,16 @@ interface IProps {
 
 interface IState {
   listState: EnumListState;
-  loading: Boolean;
-
+  loading: boolean;
+  scroll: boolean;
+  editIdx: number;
 };
 
 
 enum EnumListState {
   main,
   addMaterial,
+  EditMaterail,
   showDetail,
 }
 
@@ -108,6 +38,8 @@ class ItemListView extends Component<IProps, IState> {
     this.state = {
       listState: EnumListState.main,
       loading: true,
+      scroll: true,
+      editIdx: -1,
     }
   }
   componentWillMount() {
@@ -117,10 +49,9 @@ class ItemListView extends Component<IProps, IState> {
   }
 
   componentWillReceiveProps(nextProps: IProps) {
-    if( this.props.materials.length !== nextProps.materials.length ) {
-      this.setState({listState: EnumListState.main});
+    if( this.props.materials !== nextProps.materials ) {
+      this.setState({listState: EnumListState.main, editIdx: -1});
     }
-
   }
 
   handleAddButton = () => {
@@ -128,7 +59,7 @@ class ItemListView extends Component<IProps, IState> {
   }
 
   handlePopupCancel = () => {
-    this.setState({ listState: EnumListState.main});
+    this.setState({ listState: EnumListState.main, editIdx: -1});
   }
 
   handleBackToMain = () => {
@@ -136,6 +67,16 @@ class ItemListView extends Component<IProps, IState> {
       this.props.saveDataToStorage();
     }
     this.props.backToMain();
+  }
+
+  handleSetScroll = (enable: boolean) => {
+    if ( this.state.scroll !== enable) {
+      this.setState({scroll: enable});
+    }
+  }
+
+  handleEditItem = ( idx: number ) => {
+    this.setState({ listState: EnumListState.EditMaterail, editIdx: idx});
   }
 
   render() {
@@ -150,16 +91,22 @@ class ItemListView extends Component<IProps, IState> {
             <Image source={require('../img/add_button.png')} style={{width: 40, height: 40}}/>
           </TouchableOpacity>
         </View>
-        <ScrollView style={styles.contents}>
+        <ScrollView style={styles.contents} scrollEnabled={false !== this.state.scroll}>
         {
           this.state.loading === false ? 
-          this.props.materials.map( (item, index) => <WrapperdListItem idx={index} name={item.name} image={item.image} count={item.count} key={index} /> ) :
+          this.props.materials.map( (item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count} 
+          setParentScrollEnable={this.handleSetScroll} onEditItem={this.handleEditItem} key={index} /> ) :
           <Text>loading..</Text>
         }
         </ScrollView>
-        <View style={styles.footer}/>
+        <View style={styles.footer} />
         {
-          this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel}/>
+          this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1}/>
+        }
+        {
+          this.state.listState === EnumListState.EditMaterail && <AddPage cancel={this.handlePopupCancel} isEdited={true} 
+          idx={this.state.editIdx} name={this.props.materials[this.state.editIdx].name} image={this.props.materials[this.state.editIdx].image}
+          price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count}/>
         }
       </View>
     );

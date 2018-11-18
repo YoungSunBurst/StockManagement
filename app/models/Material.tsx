@@ -11,7 +11,9 @@ interface IContextAction {
   loadDataFromStorage?: ((complete: () => void) => void);
   saveDataToStorage?: (() => void);
   addData?: (capturedImage: IImage, name: string, price: number) => void;
+  editData?: (idx: number, material: IMaterial) => void;
   changeCount?: (idx: number, count: number) => void;
+  deleteItem?: (idx:number) => void;
 }
 
 interface IContext {
@@ -72,6 +74,16 @@ class MaterialProvider extends Component<{}, IContextValue> {
       newMaterial.push({image: capturedImage, name: name, price: price, count: 0});
       this.setState({materials: newMaterial});
     },
+    editData : (idx: number, material: IMaterial) => {
+      const newMaterial = this.state.materials.slice();
+      newMaterial[idx] = material;
+      this.setState({materials: newMaterial});
+    },
+    deleteItem: (idx: number) => {
+      const newMaterial = this.state.materials.slice();
+      newMaterial.splice(idx, 1);
+      this.setState({materials: newMaterial});
+    },
     changeCount: (idx: number, count: number) => {
       const newMaterial = this.state.materials.slice();
       newMaterial[idx].count = count;
@@ -111,7 +123,9 @@ function useMaterial(WrappedComponent: any) {
               loadDataFromStorage={actions.loadDataFromStorage}
               saveDataToStorage={actions.saveDataToStorage}
               addData={actions.addData}
+              editData={actions.editData}
               changeCount={actions.changeCount}
+              deleteItem={actions.deleteItem}
               {...props}
             />
           )

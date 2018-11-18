@@ -2,7 +2,7 @@ import React from 'react';
 import { Component } from 'react';
 import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button } from 'react-native';
 import Camera from './Camera';
-import { IImage } from '../models/Types';
+import { IImage, IMaterial } from '../models/Types';
 import { useMaterial } from '../models/Material';
 
 enum EnumPageState {
@@ -10,9 +10,12 @@ enum EnumPageState {
   camera,
 }
 
-interface IProps {
+interface IProps extends IMaterial{
   cancel: () => void;
   addData: (capturedImage: IImage, name: string, price: number) => void;
+  editData: (idx: number, material: IMaterial) => void;
+  isEdited: boolean;
+  idx: number;
 };
 
 interface IState {
@@ -20,6 +23,7 @@ interface IState {
   capturedImage: IImage | undefined;
   name: string;
   price: number;
+  prevName: string;
   // store?: ;
   // location?: string;
 
@@ -33,12 +37,24 @@ class AddPage extends Component<IProps, IState> {
       capturedImage: undefined,
       name: '',
       price: 0,
+      prevName: '',
     }
+  }
+
+  static getDerivedStateFromProps(props: IProps, state: IState) {
+    if (props.isEdited && props.name !== state.prevName) {
+      return {
+        prevName: props.name,
+        name: props.name,
+        capturedImage: props.image,
+        price: undefined !== props.price ? props.price : 0
+      };
+    }
+    return null;
   }
 
   handleCameraButton(){
     this.setState({pageState: EnumPageState.camera});
-    
   }
 
   handleCameraCaptrue = ( imageUri: string, width: number, height: number ) => {
@@ -47,10 +63,12 @@ class AddPage extends Component<IProps, IState> {
 
   handlePriceInput = (text: string) => {
     let newText = text.replace(/[^0-9]/g, '');
-    
-
     if( newText === '' ) {
-      this.setState({ price: 0});
+      if ( this.state.price === 0 ) {
+        this.forceUpdate();
+      } else {
+        this.setState({ price: 0});
+      }
     } else {
       this.setState({
         price: parseInt(newText)
@@ -60,8 +78,14 @@ class AddPage extends Component<IProps, IState> {
 
   handleApply = () => {
     const {capturedImage, name, price} = this.state;
-    if ( undefined !== capturedImage) {
-      this.props.addData(capturedImage, name, price);
+    if ( undefined !== capturedImage && '' !== name) {
+      if ( false !== this.props.isEdited ) {
+        this.props.editData( this.props.idx, { image: capturedImage, name, price, count: this.props.count});
+      } else {
+        this.props.addData(capturedImage, name, price);
+      }
+    } else {
+      alert('need Image & name');
     }
     // this.props.cancel();
   }
@@ -84,6 +108,7 @@ class AddPage extends Component<IProps, IState> {
                   style={styles.input}
                   placeholder="Name"
                   onChangeText={(name) => this.setState({ name })}
+                  value={this.state.name}
                 />
               </View>
               <View style={styles.inputContainer}>
@@ -93,7 +118,7 @@ class AddPage extends Component<IProps, IState> {
                   placeholder="Price"
                   keyboardType='numeric'
                   onChangeText={(price) => this.handlePriceInput(price)}
-                  value={this.state.price !== 0 ? this.state.price.toString() : undefined}
+                  value={this.state.price !== 0 ? this.state.price.toString() : ''}
                 />
               </View>
               <View style={styles.confirm}>

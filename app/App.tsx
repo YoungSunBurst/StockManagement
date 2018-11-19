@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, Text, View, Image, Button} from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert} from 'react-native';
 import Camera from './component/Camera';
 import ItemListView from './component/List';
 import { MaterialProvider } from './models/Material';
@@ -58,9 +58,17 @@ export default class App extends Component<IProps, IState> {
   }
 
   handleInitialize = () => {
-    if( this.materialInstance.current !== null ) {
-      this.materialInstance.current.actions.initialize();
-    }
+    Alert.alert(
+      'Are you sure you want to reset?',
+      'You can\'t undo this action.',
+      [
+        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+        {text: 'OK', onPress: () => {    if( this.materialInstance.current !== null ) {
+          this.materialInstance.current.actions.initialize();
+        }}},
+      ],
+      { cancelable: false }
+    );
   }
 
   render() {

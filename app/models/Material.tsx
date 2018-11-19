@@ -1,10 +1,11 @@
-import { IMaterial, IImage } from "./Types";
+import { IMaterial, IImage, IStore } from "./Types";
 import { retrieveData, storeData } from "../utils/AsyncStorage";
 import React from 'react';
 import { Component, createContext } from 'react';
 
 interface IContextValue {
-  materials: Array<IMaterial>
+  materials: Array<IMaterial>,
+  stores: Array<IStore>,
 }
 
 interface IContextAction {
@@ -22,7 +23,7 @@ interface IContext {
 }
 
 const initstate: IContext = {
-  state: {materials: []},
+  state: {materials: [], stores: []},
   actions: {}
 }
 
@@ -39,7 +40,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
 
   constructor(props: {}) {
     super(props)
-    this.state = {materials: [] };
+    this.state = {materials: [], stores: [] };
   }
 
   actions = {
@@ -91,11 +92,18 @@ class MaterialProvider extends Component<{}, IContextValue> {
     },
     initialize: ()  => {
       this.setState({materials: []});
+      let successCount: number = 0;
+      let isSuccess: boolean = true;
       const callback = (success: boolean) => {
         console.log('initialize' + success);
-        alert('initialize' + (false !== success) ? 'success' : 'fail');
+        successCount++;
+        isSuccess = success && isSuccess;
+        if ( successCount > 1 ) {
+          alert('initialize' + (false !== isSuccess) ? 'success' : 'fail');
+        }
       };
       storeData('MaterialList', '[]', callback);
+      storeData('StoreList', '[]', callback);
     }
   }
   render() {
@@ -120,6 +128,7 @@ function useMaterial(WrappedComponent: any) {
           ({ state, actions }) => (
             <WrappedComponent
               materials={state.materials}
+              stores={state.stores}
               loadDataFromStorage={actions.loadDataFromStorage}
               saveDataToStorage={actions.saveDataToStorage}
               addData={actions.addData}

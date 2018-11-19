@@ -1,8 +1,8 @@
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button } from 'react-native';
+import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button, Alert, Picker } from 'react-native';
 import Camera from './Camera';
-import { IImage, IMaterial } from '../models/Types';
+import { IImage, IMaterial, IStore } from '../models/Types';
 import { useMaterial } from '../models/Material';
 
 enum EnumPageState {
@@ -10,7 +10,8 @@ enum EnumPageState {
   camera,
 }
 
-interface IProps extends IMaterial{
+interface IProps extends IMaterial {
+  stores: Array<IStore>;
   cancel: () => void;
   addData: (capturedImage: IImage, name: string, price: number) => void;
   editData: (idx: number, material: IMaterial) => void;
@@ -24,6 +25,7 @@ interface IState {
   name: string;
   price: number;
   prevName: string;
+  store: IStore;
   // store?: ;
   // location?: string;
 
@@ -38,6 +40,7 @@ class AddPage extends Component<IProps, IState> {
       name: '',
       price: 0,
       prevName: '',
+      store: {id: -1, name: 'New Store' },
     }
   }
 
@@ -90,10 +93,29 @@ class AddPage extends Component<IProps, IState> {
     // this.props.cancel();
   }
 
+  handleCancel = () => {
+    if ( (false === this.props.isEdited && (this.state.capturedImage !== undefined || this.state.name !== '' )) ||
+      false !== this.props.isEdited && (this.state.capturedImage !== this.props.image || this.state.name !== this.props.name ||
+        this.state.price !== this.props.price)) {
+      Alert.alert(
+        'Are you sure you want to quit?',
+        'Your changes will not be saved',
+        [
+          { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+          { text: 'OK', onPress: () => this.props.cancel() },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      this.props.cancel();
+    }
+    
+  }
+
   render() {
     if (this.state.pageState === EnumPageState.main) {
       return (
-        <TouchableOpacity style={styles.container} onPress={() => this.props.cancel()}>
+        <TouchableOpacity style={styles.container} onPress={this.handleCancel}>
           <TouchableWithoutFeedback onPress={(e: GestureResponderEvent) => { Keyboard.dismiss(); e.stopPropagation() }}>
             <View style={styles.mainPopup}>
               <TouchableOpacity style={styles.camera} onPress={() => { this.handleCameraButton() }} >
@@ -121,6 +143,16 @@ class AddPage extends Component<IProps, IState> {
                   value={this.state.price !== 0 ? this.state.price.toString() : ''}
                 />
               </View>
+              <Picker
+                selectedValue={this.state.store.id}
+                style={{ height: 50, width: 100 }}
+                onValueChange={(itemValue, itemIndex) => {}}>
+                <Picker.Item label="New Store" value={-1} />
+                {
+                }
+                <Picker.Item label="JavaScript" value="js" />
+              </Picker>
+
               <View style={styles.confirm}>
                 <Button title="Apply" onPress={this.handleApply}/>
               </View>

@@ -9,7 +9,7 @@ export interface IStore {
   name: string;
   location?: string;
   businessCard?: IImage;
-  receiptList: Array<IImage>;
+  receiptList?: Array<IImage>;
 }
 
 export interface IMaterial {

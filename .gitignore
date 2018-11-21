@@ -60,3 +60,4 @@ buck-out/
 .vscode/.react/index.map
 .vscode/.react/index.bundle
 .vscode/.react/index.map
+ios/StockManagement.xcodeproj/xcshareddata/xcschemes/StockManagement.xcscheme

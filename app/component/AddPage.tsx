@@ -187,7 +187,8 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00000080',
+    // opacity: 20,
+    backgroundColor: 'rgba(24, 23, 67, 0.2)',
   },
   cameraContainer: {
     position: 'absolute',
@@ -198,7 +199,6 @@ const styles = StyleSheet.create({
   },
   mainPopup: {
     position: 'absolute',
-
     top: 100,
     left: 30,
     right: 30,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FFFFFF',
   },
   camera: {
     margin: 20,

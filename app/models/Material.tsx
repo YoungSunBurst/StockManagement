@@ -127,14 +127,16 @@ function useMaterial(WrappedComponent: any) {
         {
           ({ state, actions }) => (
             <WrappedComponent
-              materials={state.materials}
-              stores={state.stores}
-              loadDataFromStorage={actions.loadDataFromStorage}
-              saveDataToStorage={actions.saveDataToStorage}
-              addData={actions.addData}
-              editData={actions.editData}
-              changeCount={actions.changeCount}
-              deleteItem={actions.deleteItem}
+            {...state}
+            {...actions}
+              // materials={state.materials}
+              // stores={state.stores}
+              // loadDataFromStorage={actions.loadDataFromStorage}
+              // saveDataToStorage={actions.saveDataToStorage}
+              // addData={actions.addData}
+              // editData={actions.editData}
+              // changeCount={actions.changeCount}
+              // deleteItem={actions.deleteItem}
               {...props}
             />
           )

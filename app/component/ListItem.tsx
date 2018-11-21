@@ -1,30 +1,30 @@
 
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ImageStyle, GestureResponderEvent} from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ImageStyle } from 'react-native';
 import { IMaterial } from '../models/Types';
 import { useMaterial } from '../models/Material';
 import Swipeout, { SwipeoutButtonProperties } from 'react-native-swipeout';
 
-interface IProps extends IMaterial{
+interface IProps extends IMaterial {
   idx: number;
   changeCount: (idx: number, count: number) => void;
   setParentScrollEnable: (enable: boolean) => void;
   deleteItem: (idx: number) => void;
   onEditItem: (idx: number) => void;
-};
+}
 
 interface IState {
   // for test, this will be replaced redux props.
   // count: number;
-};
+}
 
 class ListItem extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
       // count: props.count,
-    }
+    };
   }
 
   handleCountChange = ( change: number ) => {
@@ -57,12 +57,12 @@ class ListItem extends Component<IProps, IState> {
       backgroundColor: '#E40000',
       type: 'delete',
       onPress: this.handleDeleteItem,
-    }
-  ]
+    },
+  ];
 
   render() {
     return (
-      <Swipeout right={this.swipeoutBtns} autoClose={true} scroll={(scrollEnabled: boolean)=>{this.props.setParentScrollEnable(scrollEnabled)}} >
+      <Swipeout right={this.swipeoutBtns} autoClose={true} scroll={(scrollEnabled: boolean) => { this.props.setParentScrollEnable(scrollEnabled); }} >
       <View style={styles.container} >
         <Image style={styles.thumb as ImageStyle} source={{uri: this.props.image.base64}} />
         <Text>{this.props.name}</Text>
@@ -93,15 +93,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  }, 
+  },
   thumb: {
     // borderStyle: 'solid',
     borderColor: '#11111111',
     borderWidth: 1,
     width: 60,
     height: 60,
-  }
+  },
 });
 
 export default useMaterial(ListItem);
-

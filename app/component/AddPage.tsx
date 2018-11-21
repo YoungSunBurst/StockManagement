@@ -17,10 +17,10 @@ interface IProps extends IMaterial {
   editData: (idx: number, material: IMaterial) => void;
   isEdited: boolean;
   idx: number;
-};
+}
 
 interface IState {
-  pageState: EnumPageState,
+  pageState: EnumPageState;
   capturedImage: IImage | undefined;
   name: string;
   price: number;
@@ -29,7 +29,7 @@ interface IState {
   // store?: ;
   // location?: string;
 
-};
+}
 
 class AddPage extends Component<IProps, IState> {
   constructor(props: IProps) {
@@ -41,7 +41,7 @@ class AddPage extends Component<IProps, IState> {
       price: 0,
       prevName: '',
       store: {id: -1, name: 'New Store' },
-    }
+    };
   }
 
   static getDerivedStateFromProps(props: IProps, state: IState) {
@@ -50,23 +50,23 @@ class AddPage extends Component<IProps, IState> {
         prevName: props.name,
         name: props.name,
         capturedImage: props.image,
-        price: undefined !== props.price ? props.price : 0
+        price: undefined !== props.price ? props.price : 0,
       };
     }
     return null;
   }
 
-  handleCameraButton(){
+  handleCameraButton() {
     this.setState({pageState: EnumPageState.camera});
   }
 
   handleCameraCaptrue = ( imageUri: string, width: number, height: number ) => {
-    this.setState({pageState: EnumPageState.main, capturedImage: {base64: 'data:image/png;base64,' + imageUri, width: 200, height:200}});
+    this.setState({pageState: EnumPageState.main, capturedImage: {base64: 'data:image/png;base64,' + imageUri, width: 200, height: 200}});
   }
 
   handlePriceInput = (text: string) => {
     let newText = text.replace(/[^0-9]/g, '');
-    if( newText === '' ) {
+    if ( newText === '' ) {
       if ( this.state.price === 0 ) {
         this.forceUpdate();
       } else {
@@ -74,7 +74,7 @@ class AddPage extends Component<IProps, IState> {
       }
     } else {
       this.setState({
-        price: parseInt(newText)
+        price: parseInt(newText, 10),
       });
     }
   }
@@ -104,21 +104,24 @@ class AddPage extends Component<IProps, IState> {
           { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
           { text: 'OK', onPress: () => this.props.cancel() },
         ],
-        { cancelable: false }
+        { cancelable: false },
       );
     } else {
       this.props.cancel();
     }
-    
+  }
+
+  handleStoreInfoChange = (index: number, value: string) => {
+    //
   }
 
   render() {
     if (this.state.pageState === EnumPageState.main) {
       return (
         <TouchableOpacity style={styles.container} onPress={this.handleCancel}>
-          <TouchableWithoutFeedback onPress={(e: GestureResponderEvent) => { Keyboard.dismiss(); e.stopPropagation() }}>
+          <TouchableWithoutFeedback onPress={(e: GestureResponderEvent) => { Keyboard.dismiss(); e.stopPropagation(); }}>
             <View style={styles.mainPopup}>
-              <TouchableOpacity style={styles.camera} onPress={() => { this.handleCameraButton() }} >
+              <TouchableOpacity style={styles.camera} onPress={() => { this.handleCameraButton(); }} >
                 {this.state.capturedImage !== undefined ?
                   <Image source={{ uri: this.state.capturedImage.base64 }} style={{ width: 100, height: 100 }} /> :
                   <Image source={require('../img/camera_button.png')} style={{ width: 100, height: 100 }} />
@@ -138,7 +141,7 @@ class AddPage extends Component<IProps, IState> {
                 <TextInput
                   style={styles.input}
                   placeholder="Price"
-                  keyboardType='numeric'
+                  keyboardType="numeric"
                   onChangeText={(price) => this.handlePriceInput(price)}
                   value={this.state.price !== 0 ? this.state.price.toString() : ''}
                 />
@@ -146,9 +149,10 @@ class AddPage extends Component<IProps, IState> {
               <Picker
                 selectedValue={this.state.store.id}
                 style={{ height: 50, width: 100 }}
-                onValueChange={(itemValue, itemIndex) => {}}>
+                onValueChange={(itemValue, itemIndex) =>  {this.handleStoreInfoChange(itemIndex, itemValue); }}>
                 <Picker.Item label="New Store" value={-1} />
                 {
+                  this.props.stores.map
                 }
                 <Picker.Item label="JavaScript" value="js" />
               </Picker>
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#00000080',
-  }, 
+  },
   cameraContainer: {
     position: 'absolute',
     top: 0,
@@ -204,7 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: "#F5FCFF",
+    backgroundColor: '#F5FCFF',
   },
   camera: {
     margin: 20,
@@ -219,7 +223,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 100,
   },
-  static:{
+  static: {
     flex: 1,
     color: '#3D59B9',
     fontSize: 10,
@@ -236,8 +240,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: 100,
     height: 40,
-  }
-
+  },
 });
 
 export default useMaterial(AddPage);

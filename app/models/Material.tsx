@@ -1,11 +1,11 @@
-import { IMaterial, IImage, IStore } from "./Types";
-import { retrieveData, storeData } from "../utils/AsyncStorage";
+import { IMaterial, IImage, IStore } from './Types';
+import { retrieveData, storeData } from '../utils/AsyncStorage';
 import React from 'react';
 import { Component, createContext } from 'react';
 
 interface IContextValue {
-  materials: Array<IMaterial>,
-  stores: Array<IStore>,
+  materials: Array<IMaterial>;
+  stores: Array<IStore>;
 }
 
 interface IContextAction {
@@ -14,7 +14,7 @@ interface IContextAction {
   addData?: (capturedImage: IImage, name: string, price: number) => void;
   editData?: (idx: number, material: IMaterial) => void;
   changeCount?: (idx: number, count: number) => void;
-  deleteItem?: (idx:number) => void;
+  deleteItem?: (idx: number) => void;
 }
 
 interface IContext {
@@ -24,12 +24,12 @@ interface IContext {
 
 const initstate: IContext = {
   state: {materials: [], stores: []},
-  actions: {}
-}
+  actions: {},
+};
 
 const Context = createContext<IContext>(initstate); // Context 를 만듭니다.
 
-const { Provider, Consumer: MaterialConsumer } = Context; 
+const { Provider, Consumer: MaterialConsumer } = Context;
 
 class MaterialProvider extends Component<{}, IContextValue> {
   // sprivate materials: Array<IMaterial>;
@@ -39,7 +39,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
   // }
 
   constructor(props: {}) {
-    super(props)
+    super(props);
     this.state = {materials: [], stores: [] };
   }
 
@@ -55,7 +55,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
           this.setState({ materials: []});
           // setData([]);
         }
-        complete(); 
+        complete();
       };
       retrieveData('MaterialList', callback);
     },
@@ -104,8 +104,8 @@ class MaterialProvider extends Component<{}, IContextValue> {
       };
       storeData('MaterialList', '[]', callback);
       storeData('StoreList', '[]', callback);
-    }
-  }
+    },
+  };
   render() {
     const { state, actions } = this;
     // Provider 내에서 사용할 값은, "value" 라고 부릅니다.
@@ -116,12 +116,12 @@ class MaterialProvider extends Component<{}, IContextValue> {
       <Provider value={value}>
         {this.props.children}
       </Provider>
-    )
+    );
   }
 }
 
 function useMaterial(WrappedComponent: any) {
-  return function useMaterial(props: any) {
+  return function useMaterialFunc(props: any) {
     return (
       <MaterialConsumer>
         {
@@ -140,12 +140,12 @@ function useMaterial(WrappedComponent: any) {
           )
         }
       </MaterialConsumer>
-    )
-  }
+    );
+  };
 }
 
 export {
   MaterialProvider,
   MaterialConsumer,
-  useMaterial
+  useMaterial,
 };

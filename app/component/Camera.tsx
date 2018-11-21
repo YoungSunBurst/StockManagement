@@ -26,8 +26,7 @@ const PendingView = () => (
 
 interface IProps {
   handleCameraCaptrue: (imageuri: string, width: number, height: number) => void;
-};
-
+}
 
 export default class Camera extends Component<IProps> {
   render() {
@@ -42,7 +41,9 @@ export default class Camera extends Component<IProps> {
           captureAudio={false}
         >
           {({ camera, status }) => {
-            if (status !== 'READY') return <PendingView />;
+            if (status !== 'READY') {
+              return <PendingView />;
+            }
             return (
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
                 <TouchableOpacity onPress={() => this.takePicture(camera)} style={styles.capture}>

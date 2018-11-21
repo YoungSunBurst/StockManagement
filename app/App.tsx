@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert} from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert } from 'react-native';
 import Camera from './component/Camera';
 import ItemListView from './component/List';
 import { MaterialProvider } from './models/Material';
@@ -10,7 +10,7 @@ enum EnumAppState {
   main,
   material,
   camera,
-};
+}
 
 interface ICaputuredImage {
   uri: string;
@@ -19,25 +19,24 @@ interface ICaputuredImage {
 }
 
 interface IProps {
-};
+}
 
 interface IState {
   mainState: EnumAppState;
   capturedImage: ICaputuredImage | undefined;
-};
+}
 
 export default class App extends Component<IProps, IState> {
   private materialInstance: React.RefObject<MaterialProvider>;
-
 
   constructor(props: IProps) {
     super(props);
     this.state = {
       mainState: EnumAppState.main,
       capturedImage: undefined,
-    }
+    };
     this.materialInstance = React.createRef();
-  }  
+  }
 
   handleButton = (state: EnumAppState) => {
     console.log('handleCameraButton' + state);
@@ -54,7 +53,7 @@ export default class App extends Component<IProps, IState> {
   // }
 
   handleCameraCaptrue = ( imageUri: string , width: number, height: number) => {
-    this.setState({mainState: EnumAppState.main, capturedImage: {uri:  'data:image/png;base64,' + imageUri, width: width, height:height}});
+    this.setState({mainState: EnumAppState.main, capturedImage: {uri:  'data:image/png;base64,' + imageUri, width: width, height: height}});
   }
 
   handleInitialize = () => {
@@ -63,11 +62,11 @@ export default class App extends Component<IProps, IState> {
       'You can\'t undo this action.',
       [
         {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-        {text: 'OK', onPress: () => {    if( this.materialInstance.current !== null ) {
+        {text: 'OK', onPress: () => { if ( this.materialInstance.current !== null ) {
           this.materialInstance.current.actions.initialize();
         }}},
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   }
 
@@ -77,7 +76,7 @@ export default class App extends Component<IProps, IState> {
         <MaterialProvider ref={this.materialInstance}>
           <View style={styles.container}>
             <Text style={styles.title}>Stock Management</Text>
-            {this.state.capturedImage !== undefined && 
+            {this.state.capturedImage !== undefined &&
               <Image source={{ uri: this.state.capturedImage.uri }} style={{ width: 200, height: 200 }} />
             }
             <Button
@@ -107,7 +106,7 @@ export default class App extends Component<IProps, IState> {
       );
     }
   }
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -117,10 +116,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
   },
   title: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   button: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   // welcome: {
   //   fontSize: 20,

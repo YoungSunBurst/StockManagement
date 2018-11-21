@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView} from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { IMaterial } from '../models/Types';
 import AddPage from './AddPage';
 import { useMaterial } from '../models/Material';
@@ -11,18 +11,17 @@ import { number } from 'prop-types';
 interface IProps {
   title: string;
   backToMain: () => void;
-  materials: Array<IMaterial>
+  materials: Array<IMaterial>;
   loadDataFromStorage: ((complete: () => void) => void) | undefined;
   saveDataToStorage: (() => void) | undefined;
-};
+}
 
 interface IState {
   listState: EnumListState;
   loading: boolean;
   scroll: boolean;
   editIdx: number;
-};
-
+}
 
 enum EnumListState {
   main,
@@ -30,7 +29,6 @@ enum EnumListState {
   EditMaterail,
   showDetail,
 }
-
 
 class ItemListView extends Component<IProps, IState> {
   constructor(props: IProps) {
@@ -40,16 +38,16 @@ class ItemListView extends Component<IProps, IState> {
       loading: true,
       scroll: true,
       editIdx: -1,
-    }
+    };
   }
   componentWillMount() {
-    if( undefined !== this.props.loadDataFromStorage ) {
-      this.props.loadDataFromStorage(() => {this.setState({loading: false})});
-    } 
+    if ( undefined !== this.props.loadDataFromStorage ) {
+      this.props.loadDataFromStorage(() => {this.setState({loading: false}); });
+    }
   }
 
   componentWillReceiveProps(nextProps: IProps) {
-    if( this.props.materials !== nextProps.materials ) {
+    if ( this.props.materials !== nextProps.materials ) {
       this.setState({listState: EnumListState.main, editIdx: -1});
     }
   }
@@ -63,7 +61,7 @@ class ItemListView extends Component<IProps, IState> {
   }
 
   handleBackToMain = () => {
-    if( undefined !== this.props.saveDataToStorage ) {
+    if ( undefined !== this.props.saveDataToStorage ) {
       this.props.saveDataToStorage();
     }
     this.props.backToMain();
@@ -93,26 +91,21 @@ class ItemListView extends Component<IProps, IState> {
         </View>
         <ScrollView style={styles.contents} scrollEnabled={false !== this.state.scroll}>
         {
-          this.state.loading === false ? 
-          this.props.materials.map( (item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count} 
+          this.state.loading === false ?
+          this.props.materials.map( (item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count}
           setParentScrollEnable={this.handleSetScroll} onEditItem={this.handleEditItem} key={index} /> ) :
           <Text>loading..</Text>
         }
         </ScrollView>
         <View style={styles.footer} />
-        {
-          this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1}/>
-        }
-        {
-          this.state.listState === EnumListState.EditMaterail && <AddPage cancel={this.handlePopupCancel} isEdited={true} 
+        {this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} />}
+        {this.state.listState === EnumListState.EditMaterail && <AddPage cancel={this.handlePopupCancel} isEdited={true}
           idx={this.state.editIdx} name={this.props.materials[this.state.editIdx].name} image={this.props.materials[this.state.editIdx].image}
-          price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count}/>
-        }
+          price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count} />}
       </View>
     );
   }
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -124,12 +117,12 @@ const styles = StyleSheet.create({
   },
   titleBar: {
     // marginTop
-    height: 100, 
+    height: 100,
     // flexDirection: 'column',
     alignSelf: 'stretch',
     // alignItems: 'center',
     // alignItems: 'flex-start'
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   backToMain: {
     position: 'absolute',
@@ -139,8 +132,8 @@ const styles = StyleSheet.create({
   },
   title: {
     width: 100,
-    textAlign: "center",
-    alignSelf: 'center'
+    textAlign: 'center',
+    alignSelf: 'center',
   },
   addButton: {
     // alignSelf: 'flex-end',
@@ -156,7 +149,7 @@ const styles = StyleSheet.create({
   footer: {
     height: 100,
     // flex:1,
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
   },
   // welcome: {
   //   fontSize: 20,

@@ -71,6 +71,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
       const id = ShortId.generate();
       // stores[id] = {name};
       this.setState({ stores: {...stores, [id]: {name}}});
+      return id;
     }
   }
 

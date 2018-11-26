@@ -27,10 +27,16 @@ export default class AutoCompleteInput extends Component<IProps, IState> {
 
   constructor(props: IProps) {
     super(props);
-    this.state = { selection: {start: 0, end: 0}};
+    this.state = { selection: {start: props.value.length, end: props.value.length}};
     this.inputRef = React.createRef<TextInput>();
     this.enableAutoCompletion = true;
   }
+
+  // static getDerivedStateFromProps(props: IProps, state: IState): Partial<IState> {
+  //   return{
+  //     selection{}
+  //   }
+  // }
 
   handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
     if ( e.nativeEvent.key === 'Backspace' && this.props.value !== '') {

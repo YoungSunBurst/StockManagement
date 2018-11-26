@@ -113,6 +113,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
         }
         newMaterial.push({ image: capturedImage, name, price, count: 0, storeId });
         this.setState({ materials: newMaterial });
+        this.actions.saveDataToStorage();
       }
     },
     editData: (idx: number, material: IMaterial, store?: string) => {
@@ -125,6 +126,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
         material.storeId = storeId;
         newMaterial[idx] = material;
         this.setState({ materials: newMaterial });
+        this.actions.saveDataToStorage();
       }
     },
     deleteItem: (idx: number) => {
@@ -132,6 +134,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
         const newMaterial = this.state.materials.slice();
         newMaterial.splice(idx, 1);
         this.setState({ materials: newMaterial });
+        this.actions.saveDataToStorage();
       }
     },
     changeCount: (idx: number, count: number) => {
@@ -139,6 +142,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
         const newMaterial = this.state.materials.slice();
         newMaterial[idx].count = count;
         this.setState({ materials: newMaterial });
+        this.actions.saveDataToStorage();
       }
     },
     initialize: ()  => {

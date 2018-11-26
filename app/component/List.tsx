@@ -129,7 +129,7 @@ class ItemListView extends Component<IProps, IState> {
         {this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} {...initMaterial}/>}
         {this.state.listState === EnumListState.EditMaterail && <AddPage cancel={this.handlePopupCancel} isEdited={true}
           idx={this.state.editIdx} name={this.props.materials[this.state.editIdx].name} image={this.props.materials[this.state.editIdx].image}
-          price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count} />
+          price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count} storeId={this.props.materials[this.state.editIdx].storeId} />
         }
 
       </SafeAreaView>

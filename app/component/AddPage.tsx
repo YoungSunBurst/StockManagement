@@ -15,6 +15,7 @@ interface IProps extends IMaterial {
   cancel: () => void;
   isEdited: boolean;
   idx: number;
+  // storeId?: string;
   stores?: IStores;
   addData?: (capturedImage: IImage, name: string, price: number, store?: string) => void;
   editData?: (idx: number, material: IMaterial, store?: string) => void;
@@ -45,14 +46,15 @@ class AddPage extends Component<IProps, IState> {
     };
   }
 
-  static getDerivedStateFromProps(props: IProps, state: IState) {
+  static getDerivedStateFromProps(props: IProps, state: IState): Partial<IState> {
     if (props.isEdited && props.name !== state.prevName) {
+      console.log(props.stores.hasOwnProperty(props.storeId));
       return {
         prevName: props.name,
         name: props.name,
         capturedImage: props.image,
         price: undefined !== props.price ? props.price : 0,
-        stores: props.stores.hasOwnProperty(props.storeId) === true ? props.stores[props.storeId].name : '',
+        store: props.stores.hasOwnProperty(props.storeId) === true ? props.stores[props.storeId].name : '',
       };
     }
     return null;

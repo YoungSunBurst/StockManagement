@@ -8,10 +8,10 @@ import Swipeout, { SwipeoutButtonProperties } from 'react-native-swipeout';
 
 interface IProps extends IMaterial {
   idx: number;
-  changeCount: (idx: number, count: number) => void;
   setParentScrollEnable: (enable: boolean) => void;
-  deleteItem: (idx: number) => void;
-  onEditItem: (idx: number) => void;
+  changeCount?: (idx: number, count: number) => void;
+  deleteItem?: (idx: number) => void;
+  onEditItem?: (idx: number) => void;
 }
 
 interface IState {

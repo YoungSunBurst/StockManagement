@@ -25,3 +25,26 @@ export const retrieveData = async (key: string, callback: (success: boolean, val
      // Error retrieving data
    }
 };
+
+export const retrieveDatas = async (keys: Array<string>, callback: (success: Array<boolean>, value?: Array<string>) => any) => {
+  try {
+    let values: Array<string> = [];
+    let success: Array<boolean> = [];
+    for ( let key of keys) {
+      const value = await AsyncStorage.getItem(key);
+      values.push(value);
+      success.push( values[values.length - 1] !== null);
+    }
+    callback(success, values);
+    // if (values.indexOf(null) === -1) {
+    //   // We have data!!
+    //   // console.log(value);
+    //   callback(true, values);
+    // } else {
+    //   callback(false);
+    // }
+   } catch (error) {
+     // callback(false);
+     // Error retrieving data
+   }
+};

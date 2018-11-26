@@ -5,11 +5,15 @@ export interface IImage {
 }
 
 export interface IStore {
-  id: number;
+  // id: string;
   name: string;
   location?: string;
   businessCard?: IImage;
   receiptList?: Array<IImage>;
+}
+
+export interface IStores {
+  [key: string]: IStore;
 }
 
 export interface IMaterial {
@@ -17,8 +21,14 @@ export interface IMaterial {
   image: IImage;
   count: number;
   price?: number;
-  storeId?: number;
+  storeId?: string;
 }
+
+export const initMaterial: IMaterial =  {
+  name: '',
+  image: undefined,
+  count: 0,
+};
 
 export interface IColor {
   red: number;
@@ -130,7 +140,7 @@ export class Rect implements IRect {
 
   constructor()
   constructor(object: any)
-  constructor(x: number, y: number, width: number, height: number) 
+  constructor(x: number, y: number, width: number, height: number)
   constructor(a?: any, y?: number, width?: number, height?: number) {
     if ( a instanceof Object || a instanceof Rect) {
       // this.constructor(a.x, a.y, a.width, a.height);

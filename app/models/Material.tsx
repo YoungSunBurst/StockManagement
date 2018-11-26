@@ -1,17 +1,18 @@
-import { IMaterial, IImage, IStore } from './Types';
-import { retrieveData, storeData } from '../utils/AsyncStorage';
+import { IMaterial, IImage, IStore, IStores } from './Types';
+import { retrieveData, storeData, retrieveDatas } from '../utils/AsyncStorage';
 import React from 'react';
 import { Component, createContext } from 'react';
+import ShortId from 'shortid';
 
 interface IContextValue {
-  materials: Array<IMaterial>;
-  stores: Array<IStore>;
+  materials?: Array<IMaterial>;
+  stores?: IStores;
 }
 
 interface IContextAction {
   loadDataFromStorage?: ((complete: () => void) => void);
   saveDataToStorage?: (() => void);
-  addData?: (capturedImage: IImage, name: string, price: number) => void;
+  addData?: (capturedImage: IImage, name: string, price: number, store?: string) => void;
   editData?: (idx: number, material: IMaterial) => void;
   changeCount?: (idx: number, count: number) => void;
   deleteItem?: (idx: number) => void;
@@ -23,7 +24,7 @@ interface IContext {
 }
 
 const initstate: IContext = {
-  state: {materials: [], stores: []},
+  state: {materials: [], stores: {}},
   actions: {},
 };
 
@@ -40,24 +41,56 @@ class MaterialProvider extends Component<{}, IContextValue> {
 
   constructor(props: {}) {
     super(props);
-    this.state = {materials: [], stores: [] };
+    this.state = {materials: [], stores: {} };
+  }
+
+  pushStore = (name: string): string => {
+    const { stores } = this.state;
+    // if ( stores. ) {
+    //   const id = ShortId.generate();
+    //   this.setState({stores: [{id, name}]});
+    //   return id;
+    // } else {
+    //   const idx = stores.findIndex((store) => store.name === name);
+    //   if (idx === -1) {
+    //     const id = ShortId.generate();
+    //     const newStores = stores.slice();
+    //     newStores.push({id, name});
+    //     this.setState({stores: newStores});
+    //     return id;
+    //   } else {
+    //     return stores[idx].id;
+    //   }
+    // }
+    const idx = Object.keys(stores).findIndex( (key, index ) => {
+      return stores[key].name === name;
+    });
+    if (idx !== -1 ) {
+      return Object.keys(stores)[idx];
+    } else {
+      const id = ShortId.generate();
+      // stores[id] = {name};
+      this.setState({ stores: {...stores, [id]: {name}}});
+    }
   }
 
   actions = {
     // loadDataFromStorage: (setData: (data: Array<IMaterial>) => void) => {
     loadDataFromStorage: ( complete: () => void) => {
-      const callback = (success: boolean, value?: string) => {
-        if (false !== success && value !== undefined) {
-          this.setState({ materials: JSON.parse(value)});
+      const callback = (success: Array<boolean>, value?: Array<string>) => {
+        if (-1 === success.indexOf(false) && value !== undefined) {
+          this.setState({ materials: JSON.parse(value[0]), stores:  JSON.parse(value[1])});
           // this.materials = JSON.parse(value);
           // setData(this.materials);
+        } else if ( success[1] === false) {
+          this.setState({ materials: JSON.parse(value[0]), stores: {}});
         } else {
-          this.setState({ materials: []});
+          this.setState({ materials: [], stores: {}});
           // setData([]);
         }
         complete();
       };
-      retrieveData('MaterialList', callback);
+      retrieveDatas(['MaterialList', 'StoreMap'], callback);
     },
     saveDataToStorage: () => {
       const callback = (success: boolean) => {
@@ -69,26 +102,44 @@ class MaterialProvider extends Component<{}, IContextValue> {
         // }
       };
       storeData('MaterialList', JSON.stringify(this.state.materials), callback);
+      storeData('StoreMap', JSON.stringify(this.state.stores), callback);
     },
-    addData: (capturedImage: IImage, name: string, price: number) => {
-      const newMaterial = this.state.materials.slice();
-      newMaterial.push({image: capturedImage, name: name, price: price, count: 0});
-      this.setState({materials: newMaterial});
+    addData: (capturedImage: IImage, name: string, price: number, store?: string) => {
+      if (this.state.materials !== undefined) {
+        const newMaterial = this.state.materials.slice();
+        let storeId  = undefined;
+        if ( store !== '') {
+          storeId = this.pushStore(store);
+        }
+        newMaterial.push({ image: capturedImage, name, price, count: 0, storeId });
+        this.setState({ materials: newMaterial });
+      }
     },
-    editData : (idx: number, material: IMaterial) => {
-      const newMaterial = this.state.materials.slice();
-      newMaterial[idx] = material;
-      this.setState({materials: newMaterial});
+    editData: (idx: number, material: IMaterial, store?: string) => {
+      if (this.state.materials !== undefined) {
+        const newMaterial = this.state.materials.slice();
+        let storeId  = undefined;
+        if ( store !== '') {
+          storeId = this.pushStore(store);
+        }
+        material.storeId = storeId;
+        newMaterial[idx] = material;
+        this.setState({ materials: newMaterial });
+      }
     },
     deleteItem: (idx: number) => {
-      const newMaterial = this.state.materials.slice();
-      newMaterial.splice(idx, 1);
-      this.setState({materials: newMaterial});
+      if (this.state.materials !== undefined) {
+        const newMaterial = this.state.materials.slice();
+        newMaterial.splice(idx, 1);
+        this.setState({ materials: newMaterial });
+      }
     },
     changeCount: (idx: number, count: number) => {
-      const newMaterial = this.state.materials.slice();
-      newMaterial[idx].count = count;
-      this.setState({materials: newMaterial});
+      if (this.state.materials !== undefined) {
+        const newMaterial = this.state.materials.slice();
+        newMaterial[idx].count = count;
+        this.setState({ materials: newMaterial });
+      }
     },
     initialize: ()  => {
       this.setState({materials: []});
@@ -103,7 +154,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
         }
       };
       storeData('MaterialList', '[]', callback);
-      storeData('StoreList', '[]', callback);
+      storeData('StoreMap', '{}', callback);
     },
   };
   render() {
@@ -120,31 +171,48 @@ class MaterialProvider extends Component<{}, IContextValue> {
   }
 }
 
-function useMaterial(WrappedComponent: any) {
-  return function useMaterialFunc(props: any) {
-    return (
-      <MaterialConsumer>
-        {
-          ({ state, actions }) => (
-            <WrappedComponent
-            {...state}
-            {...actions}
-              // materials={state.materials}
-              // stores={state.stores}
-              // loadDataFromStorage={actions.loadDataFromStorage}
-              // saveDataToStorage={actions.saveDataToStorage}
-              // addData={actions.addData}
-              // editData={actions.editData}
-              // changeCount={actions.changeCount}
-              // deleteItem={actions.deleteItem}
-              {...props}
-            />
-          )
-        }
-      </MaterialConsumer>
-    );
+interface IWrappedProps extends IContextValue, IContextAction {
+}
+
+function useMaterial<T extends IWrappedProps, U>(WrappedComponent: React.ComponentType<T>) {
+  return class extends React.Component<T> {
+    render() {
+      return (
+        <MaterialConsumer>
+          {
+            ({ state, actions }) => (
+              <WrappedComponent {...state} {...actions} {...this.props} />
+            )
+          }
+        </MaterialConsumer>
+      );
+    }
   };
 }
+  // return function useMaterialComponent(props: any) {
+  //   return (
+  //     <MaterialConsumer>
+  //       {
+  //         ({ state, actions }) => (
+  //           <WrappedComponent
+  //           {...state}
+  //           {...actions}
+  //             // materials={state.materials}
+  //             // stores={state.stores}
+  //             // loadDataFromStorage={actions.loadDataFromStorage}
+  //             // saveDataToStorage={actions.saveDataToStorage}
+  //             // addData={actions.addData}
+  //             // editData={actions.editData}
+  //             // changeCount={actions.changeCount}
+  //             // deleteItem={actions.deleteItem}
+  //             {...props}
+  //           />
+  //         )
+  //       }
+  //     </MaterialConsumer>
+  //   );
+  // };
+// }
 
 export {
   MaterialProvider,

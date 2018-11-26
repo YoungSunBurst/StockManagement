@@ -1,9 +1,10 @@
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button, Alert, Picker } from 'react-native';
+import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button, Alert } from 'react-native';
 import Camera from './Camera';
-import { IImage, IMaterial, IStore } from '../models/Types';
+import { IImage, IMaterial, IStore, IStores } from '../models/Types';
 import { useMaterial } from '../models/Material';
+import AutoCompleteInput from './AutoCompleteInput';
 
 enum EnumPageState {
   main,
@@ -11,12 +12,12 @@ enum EnumPageState {
 }
 
 interface IProps extends IMaterial {
-  stores: Array<IStore>;
   cancel: () => void;
-  addData: (capturedImage: IImage, name: string, price: number) => void;
-  editData: (idx: number, material: IMaterial) => void;
   isEdited: boolean;
   idx: number;
+  stores?: IStores;
+  addData?: (capturedImage: IImage, name: string, price: number, store?: string) => void;
+  editData?: (idx: number, material: IMaterial, store?: string) => void;
 }
 
 interface IState {
@@ -25,7 +26,7 @@ interface IState {
   name: string;
   price: number;
   prevName: string;
-  store: IStore;
+  store: string;
   // store?: ;
   // location?: string;
 
@@ -40,7 +41,7 @@ class AddPage extends Component<IProps, IState> {
       name: '',
       price: 0,
       prevName: '',
-      store: {id: -1, name: 'New Store' },
+      store: '',
     };
   }
 
@@ -51,6 +52,7 @@ class AddPage extends Component<IProps, IState> {
         name: props.name,
         capturedImage: props.image,
         price: undefined !== props.price ? props.price : 0,
+        stores: props.stores.hasOwnProperty(props.storeId) === true ? props.stores[props.storeId].name : '',
       };
     }
     return null;
@@ -80,12 +82,12 @@ class AddPage extends Component<IProps, IState> {
   }
 
   handleApply = () => {
-    const {capturedImage, name, price} = this.state;
+    const {capturedImage, name, price, store} = this.state;
     if ( undefined !== capturedImage && '' !== name) {
       if ( false !== this.props.isEdited ) {
-        this.props.editData( this.props.idx, { image: capturedImage, name, price, count: this.props.count});
+        this.props.editData( this.props.idx, { image: capturedImage, name, price, count: this.props.count}, store);
       } else {
-        this.props.addData(capturedImage, name, price);
+        this.props.addData(capturedImage, name, price, store);
       }
     } else {
       alert('need Image & name');
@@ -146,17 +148,17 @@ class AddPage extends Component<IProps, IState> {
                   value={this.state.price !== 0 ? this.state.price.toString() : ''}
                 />
               </View>
-              <Picker
-                selectedValue={this.state.store.id}
-                style={{ height: 50, width: 100 }}
-                onValueChange={(itemValue, itemIndex) =>  {this.handleStoreInfoChange(itemIndex, itemValue); }}>
-                <Picker.Item label="New Store" value={-1} />
-                {
-                  this.props.stores.map
-                }
-                <Picker.Item label="JavaScript" value="js" />
-              </Picker>
-
+              <View style={styles.inputContainer}>
+              <Text style={styles.static}>{this.state.store !== '' ? 'store' : ''}</Text>
+                <AutoCompleteInput
+                  style={styles.input}
+                  placeholder="store"
+                  onChangeText={(text, value) => this.setState({store: value})}
+                  reservedWordList={Object.keys(this.props.stores).map((item) => this.props.stores[item].name)}
+                  value={this.state.store}
+                  // value={this.state.price !== 0 ? this.state.price.toString() : ''}
+                />
+              </View>
               <View style={styles.confirm}>
                 <Button title="Apply" onPress={this.handleApply}/>
               </View>

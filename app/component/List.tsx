@@ -2,7 +2,7 @@
 import React from 'react';
 import { Component } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, SafeAreaView, ImageStyle } from 'react-native';
-import { IMaterial } from '../models/Types';
+import { IMaterial, initMaterial } from '../models/Types';
 import AddPage from './AddPage';
 import { useMaterial } from '../models/Material';
 import ListItem from './ListItem';
@@ -18,9 +18,9 @@ import { number } from 'prop-types';
 interface IProps {
   title: string;
   backToMain: () => void;
-  materials: Array<IMaterial>;
-  loadDataFromStorage: ((complete: () => void) => void) | undefined;
-  saveDataToStorage: (() => void) | undefined;
+  materials?: Array<IMaterial>;
+  loadDataFromStorage?: ((complete: () => void) => void) | undefined;
+  saveDataToStorage?: (() => void) | undefined;
 }
 
 interface IState {
@@ -114,17 +114,19 @@ class ItemListView extends Component<IProps, IState> {
           <View style={{ width: 56}}/>
           <View style={styles.footerChild}>
             <TouchableOpacity style={styles.footerBtn} >
-              <Image source={require('../img/wish_btn.png')} style={styles.footerBtnImg as ImageStyle} />
+              <Image source={require('../img/wish_btn.png')} style={[styles.footerBtnImg as ImageStyle ]} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.footerBtn} >
               <Image source={require('../img/account_btn.png')} style={styles.footerBtnImg as ImageStyle} />
             </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={this.handleAddButton} >
-          <Image source={require('../img/add_btn.png')} style={{ width: 56, height: 56 }} />
-        </TouchableOpacity>
-        {this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} />}
+        <View>
+          <TouchableOpacity style={styles.addButton} onPress={this.handleAddButton} >
+            <Image source={require('../img/add_btn.png')} style={{ width: 56, height: 56 }} />
+          </TouchableOpacity>
+        </View>
+        {this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} {...initMaterial}/>}
         {this.state.listState === EnumListState.EditMaterail && <AddPage cancel={this.handlePopupCancel} isEdited={true}
           idx={this.state.editIdx} name={this.props.materials[this.state.editIdx].name} image={this.props.materials[this.state.editIdx].image}
           price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count} />
@@ -167,6 +169,14 @@ const styles = StyleSheet.create({
     // textAlign: 'center',
     // alignSelf: 'center',
   },
+  addButtonWrapper: {
+    // alignSelf: 'flex-end',
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 20,
+   // marginRight: 10,
+    // justifyContent: 'flex-end',
+  },
   addButton: {
     // alignSelf: 'flex-end',
     position: 'absolute',
@@ -179,6 +189,7 @@ const styles = StyleSheet.create({
     marginTop: 21,
     marginLeft: 15,
     marginRight: 15,
+    marginBottom: 4,
     flex: 1,
     // backgroundColor: '#DDDDDD',
   },
@@ -202,8 +213,8 @@ const styles = StyleSheet.create({
   },
   footerBtnImg: {
     alignSelf: 'center',
-    width: 20,
-    height: 20,
+    // width: 20,
+    // height: 20,
   },
   // welcome: {
   //   fontSize: 20,

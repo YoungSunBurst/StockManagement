@@ -52,7 +52,7 @@ export default class AutoCompleteInput extends Component<IProps, IState> {
 
     if (text.length > 0 && false !== this.enableAutoCompletion) {
       for (let reservedWord of reservedWordList) {
-        if (text.length === reservedWord.length) {
+        if (text === reservedWord) {
           this.setState({ selection: { start: text.length, end: text.length } });
           this.props.onChangeText(text, text);
           return;

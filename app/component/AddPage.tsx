@@ -1,6 +1,6 @@
 import React from 'react';
 import { Component } from 'react';
-import { StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button, Alert } from 'react-native';
+import { Animated, StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button, Alert } from 'react-native';
 import Camera from './Camera';
 import { IImage, IMaterial, IStore, IStores } from '../models/Types';
 import { useMaterial } from '../models/Material';
@@ -28,12 +28,13 @@ interface IState {
   price: number;
   prevName: string;
   store: string;
-  // store?: ;
-  // location?: string;
-
+  mainPopupPosition: Animated.Value;
 }
 
 class AddPage extends Component<IProps, IState> {
+  public static ADDPAGE_ANIMATEDTIME = 500;
+  public static ADDPAGE_VERTICALMARGIN = 100;
+
   constructor(props: IProps) {
     super(props);
     this.state = {
@@ -43,6 +44,7 @@ class AddPage extends Component<IProps, IState> {
       price: 0,
       prevName: '',
       store: '',
+      mainPopupPosition: new Animated.Value(Dimensions.get('window').height),
     };
   }
 
@@ -60,21 +62,31 @@ class AddPage extends Component<IProps, IState> {
     return null;
   }
 
-  handleCameraButton() {
-    this.setState({pageState: EnumPageState.camera});
+  componentDidMount() {
+    Animated.timing(
+      this.state.mainPopupPosition,
+      {
+        toValue: AddPage.ADDPAGE_VERTICALMARGIN,
+        duration: AddPage.ADDPAGE_ANIMATEDTIME,
+      },
+    ).start();
   }
 
-  handleCameraCaptrue = ( imageUri: string, width: number, height: number ) => {
-    this.setState({pageState: EnumPageState.main, capturedImage: {base64: 'data:image/png;base64,' + imageUri, width: 200, height: 200}});
+  handleCameraButton() {
+    this.setState({ pageState: EnumPageState.camera });
+  }
+
+  handleCameraCaptrue = (imageUri: string, width: number, height: number) => {
+    this.setState({ pageState: EnumPageState.main, capturedImage: { base64: 'data:image/png;base64,' + imageUri, width: 200, height: 200 } });
   }
 
   handlePriceInput = (text: string) => {
     let newText = text.replace(/[^0-9]/g, '');
-    if ( newText === '' ) {
-      if ( this.state.price === 0 ) {
+    if (newText === '') {
+      if (this.state.price === 0) {
         this.forceUpdate();
       } else {
-        this.setState({ price: 0});
+        this.setState({ price: 0 });
       }
     } else {
       this.setState({
@@ -84,10 +96,10 @@ class AddPage extends Component<IProps, IState> {
   }
 
   handleApply = () => {
-    const {capturedImage, name, price, store} = this.state;
-    if ( undefined !== capturedImage && '' !== name) {
-      if ( false !== this.props.isEdited ) {
-        this.props.editData( this.props.idx, { image: capturedImage, name, price, count: this.props.count}, store);
+    const { capturedImage, name, price, store } = this.state;
+    if (undefined !== capturedImage && '' !== name) {
+      if (false !== this.props.isEdited) {
+        this.props.editData(this.props.idx, { image: capturedImage, name, price, count: this.props.count }, store);
       } else {
         this.props.addData(capturedImage, name, price, store);
       }
@@ -97,8 +109,18 @@ class AddPage extends Component<IProps, IState> {
     // this.props.cancel();
   }
 
+  onClose = () => {
+    Animated.timing(
+      this.state.mainPopupPosition,
+      {
+        toValue: Dimensions.get('window').height,
+        duration: AddPage.ADDPAGE_ANIMATEDTIME,
+      },
+    ).start( () => { this.props.cancel(); });
+  }
+
   handleCancel = () => {
-    if ( (false === this.props.isEdited && (this.state.capturedImage !== undefined || this.state.name !== '' )) ||
+    if ((false === this.props.isEdited && (this.state.capturedImage !== undefined || this.state.name !== '')) ||
       false !== this.props.isEdited && (this.state.capturedImage !== this.props.image || this.state.name !== this.props.name ||
         this.state.price !== this.props.price)) {
       Alert.alert(
@@ -106,67 +128,65 @@ class AddPage extends Component<IProps, IState> {
         'Your changes will not be saved',
         [
           { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-          { text: 'OK', onPress: () => this.props.cancel() },
+          { text: 'OK', onPress: () => this.onClose },
         ],
         { cancelable: false },
       );
     } else {
-      this.props.cancel();
+      this.onClose();
     }
-  }
-
-  handleStoreInfoChange = (index: number, value: string) => {
-    //
   }
 
   render() {
     if (this.state.pageState === EnumPageState.main) {
       return (
-        <TouchableOpacity style={styles.container} onPress={this.handleCancel}>
-          <TouchableWithoutFeedback onPress={(e: GestureResponderEvent) => { Keyboard.dismiss(); e.stopPropagation(); }}>
-            <View style={styles.mainPopup}>
-              <TouchableOpacity style={styles.camera} onPress={() => { this.handleCameraButton(); }} >
-                {this.state.capturedImage !== undefined ?
-                  <Image source={{ uri: this.state.capturedImage.base64 }} style={{ width: 100, height: 100 }} /> :
-                  <Image source={require('../img/camera_button.png')} style={{ width: 100, height: 100 }} />
-                }
-              </TouchableOpacity>
-              <View style={styles.inputContainer}>
-                <Text style={styles.static}>{this.state.name !== '' ? 'Name' : ''}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Name"
-                  onChangeText={(name) => this.setState({ name })}
-                  value={this.state.name}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.static}>{this.state.price !== 0 ? 'Price' : ''}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Price"
-                  keyboardType="numeric"
-                  onChangeText={(price) => this.handlePriceInput(price)}
-                  value={this.state.price !== 0 ? this.state.price.toString() : ''}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-              <Text style={styles.static}>{this.state.store !== '' ? 'store' : ''}</Text>
-                <AutoCompleteInput
-                  style={styles.input}
-                  placeholder="store"
-                  onChangeText={(text, value) => this.setState({store: value})}
-                  reservedWordList={Object.keys(this.props.stores).map((item) => this.props.stores[item].name)}
-                  value={this.state.store}
+        <TouchableWithoutFeedback  onPress={this.handleCancel}>
+          <View style={styles.container}>
+            <TouchableWithoutFeedback onPress={(e: GestureResponderEvent) => { Keyboard.dismiss(); e.stopPropagation(); }}>
+              <Animated.View style={[styles.mainPopup, { top: this.state.mainPopupPosition }]}>
+                <TouchableOpacity style={styles.camera} onPress={() => { this.handleCameraButton(); }} >
+                  {this.state.capturedImage !== undefined ?
+                    <Image source={{ uri: this.state.capturedImage.base64 }} style={{ width: 100, height: 100 }} /> :
+                    <Image source={require('../img/camera_button.png')} style={{ width: 100, height: 100 }} />
+                  }
+                </TouchableOpacity>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.static}>{this.state.name !== '' ? 'Name' : ''}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Name"
+                    onChangeText={(name) => this.setState({ name })}
+                    value={this.state.name}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.static}>{this.state.price !== 0 ? 'Price' : ''}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Price"
+                    keyboardType="numeric"
+                    onChangeText={(price) => this.handlePriceInput(price)}
+                    value={this.state.price !== 0 ? this.state.price.toString() : ''}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.static}>{this.state.store !== '' ? 'store' : ''}</Text>
+                  <AutoCompleteInput
+                    style={styles.input}
+                    placeholder="store"
+                    onChangeText={(text, value) => this.setState({ store: value })}
+                    reservedWordList={Object.keys(this.props.stores).map((item) => this.props.stores[item].name)}
+                    value={this.state.store}
                   // value={this.state.price !== 0 ? this.state.price.toString() : ''}
-                />
-              </View>
-              <View style={styles.confirm}>
-                <Button title="Apply" onPress={this.handleApply}/>
-              </View>
-              </View>
-          </TouchableWithoutFeedback>
-        </TouchableOpacity>
+                  />
+                </View>
+                <View style={styles.confirm}>
+                  <Button title="Apply" onPress={this.handleApply} />
+                </View>
+              </Animated.View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       );
     } else {
       return (
@@ -203,12 +223,10 @@ const styles = StyleSheet.create({
   },
   mainPopup: {
     position: 'absolute',
-    top: 100,
-    left: 30,
-    right: 30,
-    bottom: 100,
-    // width: 150,
-    // height: 200,
+    // top: Dimensions.get('window').height, // to 100 ( state.mainpopupposition)
+    left: 0,
+    right: 0,
+    height: Dimensions.get('window').height - AddPage.ADDPAGE_VERTICALMARGIN * 2,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',

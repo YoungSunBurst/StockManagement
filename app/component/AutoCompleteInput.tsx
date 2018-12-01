@@ -1,14 +1,15 @@
 import React from 'react';
 import { Component } from 'react';
-import { TextInput, StyleProp, TextStyle, NativeSyntheticEvent, TextInputSelectionChangeEventData, TextInputChangeEventData, TextInputKeyPressEventData } from 'react-native';
+import { TextInput, StyleProp, TextStyle, NativeSyntheticEvent, TextInputChangeEventData, TextInputKeyPressEventData } from 'react-native';
 
 interface IProps {
   reservedWordList: Array<string>;
-  style: StyleProp<TextStyle>;
-  onChangeText: (text: string, reservedWord: string, selection?: ISelection) => void;
-  placeholder: string;
   value: string;
+  style?: StyleProp<TextStyle>;
+  placeholder?: string;
   selection?: ISelection;
+  onChangeText: (original: string, reservedWord: string, selection?: ISelection) => void;
+
 }
 
 export interface ISelection {
@@ -32,23 +33,15 @@ export default class AutoCompleteInput extends Component<IProps, IState> {
     this.enableAutoCompletion = true;
   }
 
-  // static getDerivedStateFromProps(props: IProps, state: IState): Partial<IState> {
-  //   return{
-  //     selection{}
-  //   }
-  // }
-
   handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
     if ( e.nativeEvent.key === 'Backspace' && this.props.value !== '') {
       this.enableAutoCompletion = false;
     }
   }
 
-  handleChangeText = (e: NativeSyntheticEvent<TextInputChangeEventData>) => {
-    const { value, reservedWordList } = this.props;
-    // const { selection } = this.state;
-
-    const text = e.nativeEvent.text;
+  handleChangeText = (text: string) => {
+    const { reservedWordList } = this.props;
+    // const text = e.nativeEvent.text;
 
     if (text.length > 0 && false !== this.enableAutoCompletion) {
       for (let reservedWord of reservedWordList) {
@@ -66,16 +59,8 @@ export default class AutoCompleteInput extends Component<IProps, IState> {
           }
           if (find === true) {
             let selection = { start: text.length, end: reservedWord.length };
-
             this.props.onChangeText(text, reservedWord, selection);
-            // setTimeout(() => {
-            // console.log(selection);
-
             this.setState({ selection });
-            // this.inputRef.current.focus();
-
-            // }, 1500);
-            // this.inputRef.current.setNativeProps({ selection: { start: reservedWord.length , end: text.length  }});
             return;
           }
         }
@@ -92,15 +77,11 @@ export default class AutoCompleteInput extends Component<IProps, IState> {
   //   // this.inputRef.current.focus();
   // }
 
-  // componentDidUpdate() {
-  //   this.inputRef.current.
-  // }
-
   render() {
     const { style, placeholder, value  } = this.props;
     const { selection } = this.state;
     const { handleChangeText, handleKeyPress } = this;
-    console.log('render' + JSON.stringify(selection));
+    // console.log('render' + JSON.stringify(selection));
 
     return (
       <TextInput
@@ -108,7 +89,7 @@ export default class AutoCompleteInput extends Component<IProps, IState> {
         autoCapitalize={'none'}
         style={[style, {flex: 2}]}
         placeholder={placeholder}
-        onChange={handleChangeText}
+        onChangeText={handleChangeText}
         value={value}
         selection={selection}
         multiline={true}

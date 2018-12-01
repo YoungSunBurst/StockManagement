@@ -83,7 +83,7 @@ class MaterialProvider extends Component<{}, IContextValue> {
           this.setState({ materials: JSON.parse(value[0]), stores:  JSON.parse(value[1])});
           // this.materials = JSON.parse(value);
           // setData(this.materials);
-        } else if ( success[1] === false) {
+        } else if ( success[0] === false && success[1] === false) {
           this.setState({ materials: JSON.parse(value[0]), stores: {}});
         } else {
           this.setState({ materials: [], stores: {}});

@@ -174,7 +174,7 @@ class AddPage extends Component<IProps, IState> {
                   <AutoCompleteInput
                     style={styles.input}
                     placeholder="store"
-                    onChangeText={(text, value) => this.setState({ store: value })}
+                    onChangeText={(original, value) => this.setState({ store: value })}
                     reservedWordList={Object.keys(this.props.stores).map((item) => this.props.stores[item].name)}
                     value={this.state.store}
                   // value={this.state.price !== 0 ? this.state.price.toString() : ''}

@@ -96,7 +96,7 @@ class ItemListView extends Component<IProps, IState> {
         </View>
         <ScrollView style={styles.contents} scrollEnabled={false !== this.state.scroll}>
           {
-            this.state.loading === false ?
+            this.state.loading === false && this.props.materials !== null ?
               this.props.materials.map((item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count}
                 setParentScrollEnable={this.handleSetScroll} onEditItem={this.handleEditItem} key={index} />) :
               <Text>loading..</Text>

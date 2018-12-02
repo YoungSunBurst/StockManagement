@@ -1,13 +1,20 @@
 import { AsyncStorage } from 'react-native';
 
-export const storeData = async (key: string, data: string, callback: (success: boolean) => any) => {
+export const storeData = async (key: string, data: string): Promise<boolean>  => {
+  await AsyncStorage.setItem(key, data);
   try {
-    await AsyncStorage.setItem(key, data);
-    callback(true);
+    return true;
   } catch (error) {
-    callback(false);
+    return false;
     // Error saving data
-  }
+  }  // return new Promise((resolve, reject) => {
+  //   try {
+  //     return true;
+  //   } catch (error) {
+  //     return false;
+  //     // Error saving data
+  //   }
+  // });
 };
 
 export const retrieveData = async (key: string, callback: (success: boolean, value?: string) => any) => {

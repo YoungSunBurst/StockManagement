@@ -22,6 +22,7 @@ export interface IMaterial {
   count: number;
   price?: number;
   storeId?: string;
+  description?: string;
 }
 
 export const initMaterial: IMaterial =  {

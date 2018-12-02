@@ -87,62 +87,69 @@ class ItemListView extends Component<IProps, IState> {
 
   render() {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.titleBar}>
-          <TouchableOpacity style={styles.backToMain} onPress={this.handleBackToMain} >
-            <Image source={require('../img/menu_btn.png')} style={{ width: 8, height: 13 }} />
-          </TouchableOpacity>
-          <Text style={styles.title}>{this.props.title}</Text>
-        </View>
-        <ScrollView style={styles.contents} scrollEnabled={false !== this.state.scroll}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View style={styles.titleBar}>
+            <TouchableOpacity style={styles.backToMain} onPress={this.handleBackToMain} >
+              <Image source={require('../img/menu_btn.png')} style={{ width: 8, height: 13 }} />
+            </TouchableOpacity>
+            <Text style={styles.title}>{this.props.title}</Text>
+          </View>
+          <ScrollView style={styles.contents} scrollEnabled={false !== this.state.scroll}>
+            {
+              this.state.loading === false && this.props.materials !== null ?
+                this.props.materials.map((item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count}
+                  setParentScrollEnable={this.handleSetScroll} onEditItem={this.handleEditItem} key={index} />) :
+                <Text>loading..</Text>
+            }
+          </ScrollView>
+          <View style={styles.footer}>
+            <View style={styles.footerChild}>
+              <TouchableOpacity style={styles.footerBtn} onPress={this.handleBackToMain} >
+                <Image source={require('../img/home_btn.png')} style={styles.footerBtnImg as ImageStyle} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.footerBtn} >
+                <Image source={require('../img/product_btn.png')} style={styles.footerBtnImg as ImageStyle} />
+              </TouchableOpacity>
+            </View>
+            <View style={{ width: 56 }} />
+            <View style={styles.footerChild}>
+              <TouchableOpacity style={styles.footerBtn} >
+                <Image source={require('../img/wish_btn.png')} style={[styles.footerBtnImg as ImageStyle]} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.footerBtn} >
+                <Image source={require('../img/account_btn.png')} style={styles.footerBtnImg as ImageStyle} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View>
+            <TouchableOpacity style={styles.addButton} onPress={this.handleAddButton} >
+              <Image source={require('../img/add_btn.png')} style={{ width: 56, height: 56 }} />
+            </TouchableOpacity>
+          </View>
           {
-            this.state.loading === false && this.props.materials !== null ?
-              this.props.materials.map((item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count}
-                setParentScrollEnable={this.handleSetScroll} onEditItem={this.handleEditItem} key={index} />) :
-              <Text>loading..</Text>
+            this.state.listState === EnumListState.addMaterial &&
+            <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} {...initMaterial} />
           }
-        </ScrollView>
-        <View style={styles.footer}>
-          <View style={styles.footerChild}>
-            <TouchableOpacity style={styles.footerBtn} onPress={this.handleBackToMain} >
-              <Image source={require('../img/home_btn.png')} style={styles.footerBtnImg as ImageStyle} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.footerBtn} >
-              <Image source={require('../img/product_btn.png')} style={styles.footerBtnImg as ImageStyle} />
-            </TouchableOpacity>
-          </View>
-          <View style={{ width: 56}}/>
-          <View style={styles.footerChild}>
-            <TouchableOpacity style={styles.footerBtn} >
-              <Image source={require('../img/wish_btn.png')} style={[styles.footerBtnImg as ImageStyle ]} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.footerBtn} >
-              <Image source={require('../img/account_btn.png')} style={styles.footerBtnImg as ImageStyle} />
-            </TouchableOpacity>
-          </View>
+          {
+            this.state.listState === EnumListState.EditMaterail &&
+            <AddPage cancel={this.handlePopupCancel} isEdited={true} idx={this.state.editIdx}
+            editMaterial={this.props.materials[this.state.editIdx]} />
+          }
         </View>
-        <View>
-          <TouchableOpacity style={styles.addButton} onPress={this.handleAddButton} >
-            <Image source={require('../img/add_btn.png')} style={{ width: 56, height: 56 }} />
-          </TouchableOpacity>
-        </View>
-        {this.state.listState === EnumListState.addMaterial && <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} {...initMaterial}/>}
-        {this.state.listState === EnumListState.EditMaterail && <AddPage cancel={this.handlePopupCancel} isEdited={true}
-          idx={this.state.editIdx} name={this.props.materials[this.state.editIdx].name} image={this.props.materials[this.state.editIdx].image}
-          price={this.props.materials[this.state.editIdx].price} count={this.props.materials[this.state.editIdx].count} storeId={this.props.materials[this.state.editIdx].storeId} />
-        }
-
       </SafeAreaView>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    // alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
   titleBar: {

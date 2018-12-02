@@ -12,7 +12,7 @@ interface IContextValue {
 interface IContextAction {
   loadDataFromStorage?: ((complete: () => void) => void);
   saveDataToStorage?: (() => void);
-  addData?: (capturedImage: IImage, name: string, price: number, store?: string) => void;
+  addData?: (material: IMaterial, store?: string) => void;
   editData?: (idx: number, material: IMaterial) => void;
   changeCount?: (idx: number, count: number) => void;
   deleteItem?: (idx: number) => void;
@@ -46,22 +46,6 @@ class MaterialProvider extends Component<{}, IContextValue> {
 
   pushStore = (name: string): string => {
     const { stores } = this.state;
-    // if ( stores. ) {
-    //   const id = ShortId.generate();
-    //   this.setState({stores: [{id, name}]});
-    //   return id;
-    // } else {
-    //   const idx = stores.findIndex((store) => store.name === name);
-    //   if (idx === -1) {
-    //     const id = ShortId.generate();
-    //     const newStores = stores.slice();
-    //     newStores.push({id, name});
-    //     this.setState({stores: newStores});
-    //     return id;
-    //   } else {
-    //     return stores[idx].id;
-    //   }
-    // }
     const idx = Object.keys(stores).findIndex( (key, index ) => {
       return stores[key].name === name;
     });
@@ -94,25 +78,20 @@ class MaterialProvider extends Component<{}, IContextValue> {
       retrieveDatas(['MaterialList', 'StoreMap'], callback);
     },
     saveDataToStorage: () => {
-      const callback = (success: boolean) => {
-        // if ( false !== success ) {
-        console.log(success);
-
-        // } else {
-        //   setData( [] );
-        // }
+      const callback = (dataName: string, success: boolean) => {
+        console.log(dataName, success);
       };
-      storeData('MaterialList', JSON.stringify(this.state.materials), callback);
-      storeData('StoreMap', JSON.stringify(this.state.stores), callback);
+      storeData('MaterialList', JSON.stringify(this.state.materials)).then( (success) => callback('MaterialList', success) );
+      storeData('StoreMap', JSON.stringify(this.state.materials)).then( (success) => callback('StoreMap', success) );
     },
-    addData: (capturedImage: IImage, name: string, price: number, store?: string) => {
+    addData: (material: IMaterial, store?: string) => {
       if (this.state.materials !== undefined) {
         const newMaterial = this.state.materials.slice();
         let storeId  = undefined;
         if ( store !== '') {
           storeId = this.pushStore(store);
         }
-        newMaterial.push({ image: capturedImage, name, price, count: 0, storeId });
+        newMaterial.push({ ...material, count: 0, storeId });
         this.setState({ materials: newMaterial });
         this.actions.saveDataToStorage();
       }
@@ -158,8 +137,8 @@ class MaterialProvider extends Component<{}, IContextValue> {
           alert('initialize' + (false !== isSuccess) ? 'success' : 'fail');
         }
       };
-      storeData('MaterialList', '[]', callback);
-      storeData('StoreMap', '{}', callback);
+      storeData('MaterialList', '[]').then( (success) => callback(success));
+      storeData('StoreMap', '{}').then((success) => callback(success));
     },
   };
   render() {
@@ -194,30 +173,6 @@ function useMaterial<T extends IWrappedProps, U>(WrappedComponent: React.Compone
     }
   };
 }
-  // return function useMaterialComponent(props: any) {
-  //   return (
-  //     <MaterialConsumer>
-  //       {
-  //         ({ state, actions }) => (
-  //           <WrappedComponent
-  //           {...state}
-  //           {...actions}
-  //             // materials={state.materials}
-  //             // stores={state.stores}
-  //             // loadDataFromStorage={actions.loadDataFromStorage}
-  //             // saveDataToStorage={actions.saveDataToStorage}
-  //             // addData={actions.addData}
-  //             // editData={actions.editData}
-  //             // changeCount={actions.changeCount}
-  //             // deleteItem={actions.deleteItem}
-  //             {...props}
-  //           />
-  //         )
-  //       }
-  //     </MaterialConsumer>
-  //   );
-  // };
-// }
 
 export {
   MaterialProvider,

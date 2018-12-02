@@ -1,10 +1,11 @@
 import React from 'react';
 import { Component } from 'react';
-import { Animated, KeyboardAvoidingView, StyleSheet, View, Keyboard, TouchableOpacity, TouchableWithoutFeedback, Dimensions, GestureResponderEvent, Image, Text, TextInput, Button, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { Animated, KeyboardAvoidingView, StyleSheet, View, Keyboard, TouchableOpacity, NativeModules, EmitterSubscription, StatusBarIOS, Dimensions, Image, Text, TextInput, Alert, ScrollView } from 'react-native';
 import Camera from './Camera';
-import { IImage, IMaterial, IStore, IStores } from '../models/Types';
+import { IImage, IMaterial, IStores } from '../models/Types';
 import { useMaterial } from '../models/Material';
 import AutoCompleteInput from './AutoCompleteInput';
+const {StatusBarManager} = NativeModules;
 
 enum EnumPageState {
   main,
@@ -32,12 +33,15 @@ interface IState {
   store: string;
   description: string;
   mainPopupPosition: Animated.Value;
+  //
+  statusBarHeight: number;
 }
 
 class AddPage extends Component<IProps, IState> {
   public static ADDPAGE_ANIMATEDTIME = 250;
   public static ADDPAGE_VERTICALMARGIN = 0;
   public static IMAGE_SIZE = Dimensions.get('window').width - 50;
+  private statusBarListener: EmitterSubscription;
 
   constructor(props: IProps) {
     super(props);
@@ -50,6 +54,7 @@ class AddPage extends Component<IProps, IState> {
       store: '',
       description: '',
       mainPopupPosition: new Animated.Value(Dimensions.get('window').height),
+      statusBarHeight: 0,
     };
   }
 
@@ -66,8 +71,13 @@ class AddPage extends Component<IProps, IState> {
     }
     return null;
   }
-
   componentDidMount() {
+    StatusBarManager.getHeight((statusBarFrameData: any) => {
+      this.setState({statusBarHeight: statusBarFrameData.height});
+    });
+    this.statusBarListener = StatusBarIOS.addListener('statusBarFrameWillChange', (statusBarData) => {
+      this.setState({statusBarHeight: statusBarData.frame.height});
+    });
     Animated.timing(
       this.state.mainPopupPosition,
       {
@@ -75,6 +85,10 @@ class AddPage extends Component<IProps, IState> {
         duration: AddPage.ADDPAGE_ANIMATEDTIME,
       },
     ).start();
+  }
+
+  componentWillUnmount() {
+    this.statusBarListener.remove();
   }
 
   handleCameraButton = () => {
@@ -149,14 +163,14 @@ class AddPage extends Component<IProps, IState> {
     if (this.state.pageState === EnumPageState.main) {
       const bEnbleApply = this.state.name !== '' && this.state.capturedImage !== undefined;
       return (
-        <KeyboardAvoidingView style={styles.avoidkeyWrapper} behavior="padding" enabled={true}>
+        <KeyboardAvoidingView keyboardVerticalOffset={this.state.statusBarHeight} style={styles.avoidkeyWrapper} behavior="padding" enabled={true}>
           <Animated.View style={[styles.animateWrapper, { top: this.state.mainPopupPosition }]}>
+            <View style={styles.titleBar}>
+              <TouchableOpacity style={styles.backToMain} onPress={this.handleCancel} >
+                <Image source={require('../img/Close_btn.png')} style={{ width: 12, height: 13 }} />
+              </TouchableOpacity>
+            </View>
             <ScrollView style={styles.scrollViewWrapper}>
-              <View style={styles.titleBar}>
-                <TouchableOpacity style={styles.backToMain} onPress={this.handleCancel} >
-                  <Image source={require('../img/Close_btn.png')} style={{ width: 12, height: 13 }} />
-                </TouchableOpacity>
-              </View>
               <View style={styles.inputContainer}>
                 <Text style={styles.static}>{this.state.name !== '' ? 'Name' : ''}</Text>
                 <TextInput
@@ -235,9 +249,10 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     bottom: 0,
+    paddingBottom: 10050,
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    backgroundColor: 'rgba(24, 23, 67, 0.1  )',
+    // backgroundColor: 'rgba(24, 23, 67, 0.1  )',
   },
   cameraContainer: {
     position: 'absolute',

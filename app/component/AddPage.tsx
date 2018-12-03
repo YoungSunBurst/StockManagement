@@ -35,6 +35,7 @@ interface IState {
   mainPopupPosition: Animated.Value;
   //
   statusBarHeight: number;
+  keyboardShow: boolean;
 }
 
 class AddPage extends Component<IProps, IState> {
@@ -42,6 +43,8 @@ class AddPage extends Component<IProps, IState> {
   public static ADDPAGE_VERTICALMARGIN = 0;
   public static IMAGE_SIZE = Dimensions.get('window').width - 50;
   private statusBarListener: EmitterSubscription;
+  private keyboardDidShowListener: EmitterSubscription;
+  private keyboardDidHideListener: EmitterSubscription;
 
   constructor(props: IProps) {
     super(props);
@@ -55,6 +58,7 @@ class AddPage extends Component<IProps, IState> {
       description: '',
       mainPopupPosition: new Animated.Value(Dimensions.get('window').height),
       statusBarHeight: 0,
+      keyboardShow: false,
     };
   }
 
@@ -71,13 +75,12 @@ class AddPage extends Component<IProps, IState> {
     }
     return null;
   }
+
   componentDidMount() {
     StatusBarManager.getHeight((statusBarFrameData: any) => {
       this.setState({statusBarHeight: statusBarFrameData.height});
     });
-    this.statusBarListener = StatusBarIOS.addListener('statusBarFrameWillChange', (statusBarData) => {
-      this.setState({statusBarHeight: statusBarData.frame.height});
-    });
+    this.addEvent();
     Animated.timing(
       this.state.mainPopupPosition,
       {
@@ -88,7 +91,31 @@ class AddPage extends Component<IProps, IState> {
   }
 
   componentWillUnmount() {
+    this.removeEvent();
+  }
+
+  private addEvent = () => {
+    this.statusBarListener = StatusBarIOS.addListener('statusBarFrameWillChange', this.handleStatusBarChange);
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
+  }
+
+  private removeEvent = () => {
     this.statusBarListener.remove();
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  private handleStatusBarChange = (statusBarData: any) => {
+    this.setState({ statusBarHeight: statusBarData.frame.height });
+  }
+
+  private handleKeyboardDidShow = () => {
+    this.setState({ keyboardShow: true});
+  }
+
+  private handleKeyboardDidHide = () => {
+    this.setState({ keyboardShow: false});
   }
 
   handleCameraButton = () => {
@@ -128,6 +155,7 @@ class AddPage extends Component<IProps, IState> {
   }
 
   onClose = () => {
+    this.handleKeyboardHide();
     Animated.timing(
       this.state.mainPopupPosition,
       {
@@ -156,6 +184,7 @@ class AddPage extends Component<IProps, IState> {
   }
 
   handleKeyboardHide = () => {
+    this.setState({keyboardShow: false});
     Keyboard.dismiss();
   }
 
@@ -166,7 +195,7 @@ class AddPage extends Component<IProps, IState> {
         <KeyboardAvoidingView keyboardVerticalOffset={this.state.statusBarHeight} style={styles.avoidkeyWrapper} behavior="padding" enabled={true}>
           <Animated.View style={[styles.animateWrapper, { top: this.state.mainPopupPosition }]}>
             <View style={styles.titleBar}>
-              <TouchableOpacity style={styles.backToMain} onPress={this.handleCancel} >
+              <TouchableOpacity style={styles.close} onPress={this.handleCancel} >
                 <Image source={require('../img/Close_btn.png')} style={{ width: 12, height: 13 }} />
               </TouchableOpacity>
             </View>
@@ -221,9 +250,11 @@ class AddPage extends Component<IProps, IState> {
                 <TouchableOpacity style={styles.bottomButton} onPress={this.handleCameraButton} >
                   <Image source={require('../img/camera_button.png')} style={{ width: 26, height: 23 }} />
                 </TouchableOpacity>
+                { this.state.keyboardShow &&
                 <TouchableOpacity style={styles.bottomButton} onPress={this.handleKeyboardHide} >
                   <Image source={require('../img/keyboradHide_btn.png')} style={{ width: 18, height: 9}} />
                 </TouchableOpacity>
+                }
               </View>
               <TouchableOpacity style={[styles.confirm, !bEnbleApply && {backgroundColor: '#dddddd'}]} onPress={this.handleApply} disabled={!bEnbleApply} >
                 <Image source={require('../img/Confirm_btn.png')} style={{ width: 19 }} />
@@ -283,11 +314,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backToMain: {
+  close: {
     position: 'absolute',
     left: 15,
-    width: 8,
-    height: 14,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputContainer: {
     paddingLeft: 25,

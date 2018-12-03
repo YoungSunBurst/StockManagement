@@ -26,7 +26,8 @@ interface IProps {
 interface IState {
   listState: EnumListState;
   loading: boolean;
-  scroll: boolean;
+  scrollEnable: boolean;
+  onScrolling: boolean;
   editIdx: number;
 }
 
@@ -43,7 +44,8 @@ class ItemListView extends Component<IProps, IState> {
     this.state = {
       listState: EnumListState.main,
       loading: true,
-      scroll: true,
+      scrollEnable: true,
+      onScrolling: false,
       editIdx: -1,
     };
   }
@@ -76,9 +78,20 @@ class ItemListView extends Component<IProps, IState> {
   }
 
   handleSetScroll = (enable: boolean) => {
-    if ( this.state.scroll !== enable) {
-      this.setState({scroll: enable});
+    console.log('handleSetScroll');
+    if ( this.state.scrollEnable !== enable) {
+      this.setState({scrollEnable: enable});
     }
+  }
+
+  handleScrollbegin = () => {
+    console.log('handleScrollbegin');
+    this.setState({onScrolling: true});
+  }
+
+  handleScrollEnd = () => {
+    console.log('handleScrollEnd');
+    this.setState({onScrolling: false});
   }
 
   handleEditItem = ( idx: number ) => {
@@ -86,26 +99,29 @@ class ItemListView extends Component<IProps, IState> {
   }
 
   render() {
+    const { title, materials} = this.props;
+    const { scrollEnable, onScrolling, loading, listState, editIdx } = this.state;
+    const { handleBackToMain, handleScrollbegin, handleSetScroll, handleEditItem, handleScrollEnd, handleAddButton, handlePopupCancel } = this;
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           <View style={styles.titleBar}>
-            <TouchableOpacity style={styles.backToMain} onPress={this.handleBackToMain} >
+            <TouchableOpacity style={styles.backToMain} onPress={handleBackToMain} >
               <Image source={require('../img/menu_btn.png')} style={{ width: 8, height: 13 }} />
             </TouchableOpacity>
-            <Text style={styles.title}>{this.props.title}</Text>
+            <Text style={styles.title}>{title}</Text>
           </View>
-          <ScrollView style={styles.contents} scrollEnabled={false !== this.state.scroll}>
+          <ScrollView style={styles.contents} scrollEnabled={false !== scrollEnable} onScrollBeginDrag={handleScrollbegin} onScrollEndDrag={handleScrollEnd}>
             {
-              this.state.loading === false && this.props.materials !== null ?
-                this.props.materials.map((item, index) => <ListItem idx={index} name={item.name} image={item.image} count={item.count}
-                  setParentScrollEnable={this.handleSetScroll} onEditItem={this.handleEditItem} key={index} />) :
+              loading === false && materials !== null ?
+                materials.map((item, index) => <ListItem idx={index} swipeEnable={!onScrolling} name={item.name} image={item.image} count={item.count}
+                  setParentScrollEnable={handleSetScroll} onEditItem={handleEditItem} key={index} />) :
                 <Text>loading..</Text>
             }
           </ScrollView>
           <View style={styles.footer}>
             <View style={styles.footerChild}>
-              <TouchableOpacity style={styles.footerBtn} onPress={this.handleBackToMain} >
+              <TouchableOpacity style={styles.footerBtn} onPress={handleBackToMain} >
                 <Image source={require('../img/home_btn.png')} style={styles.footerBtnImg as ImageStyle} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.footerBtn} >
@@ -123,18 +139,18 @@ class ItemListView extends Component<IProps, IState> {
             </View>
           </View>
           <View>
-            <TouchableOpacity style={styles.addButton} onPress={this.handleAddButton} >
+            <TouchableOpacity style={styles.addButton} onPress={handleAddButton} >
               <Image source={require('../img/add_btn.png')} style={{ width: 56, height: 56 }} />
             </TouchableOpacity>
           </View>
           {
-            this.state.listState === EnumListState.addMaterial &&
-            <AddPage cancel={this.handlePopupCancel} isEdited={false} idx={-1} {...initMaterial} />
+            listState === EnumListState.addMaterial &&
+            <AddPage cancel={handlePopupCancel} isEdited={false} idx={-1} {...initMaterial} />
           }
           {
-            this.state.listState === EnumListState.EditMaterail &&
-            <AddPage cancel={this.handlePopupCancel} isEdited={true} idx={this.state.editIdx}
-            editMaterial={this.props.materials[this.state.editIdx]} />
+            listState === EnumListState.EditMaterail &&
+            <AddPage cancel={handlePopupCancel} isEdited={true} idx={editIdx}
+            editMaterial={materials[editIdx]} />
           }
         </View>
       </SafeAreaView>

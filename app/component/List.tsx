@@ -201,12 +201,10 @@ const styles = StyleSheet.create({
     // justifyContent: 'flex-end',
   },
   addButton: {
-    // alignSelf: 'flex-end',
+
     position: 'absolute',
     alignSelf: 'center',
     bottom: 20,
-   // marginRight: 10,
-    // justifyContent: 'flex-end',
   },
   contents: {
     marginTop: 21,
@@ -214,41 +212,23 @@ const styles = StyleSheet.create({
     marginRight: 15,
     marginBottom: 4,
     flex: 1,
-    // backgroundColor: '#DDDDDD',
   },
   footer: {
     height: 57,
-    // flex: 1,
     flexDirection: 'row',
-    // alignItems: 'flex-end',
   },
   footerChild: {
-    // height: 57,
     flex: 1,
     flexDirection: 'row',
-    // alignItems: 'flex-end',
   },
   footerBtn: {
     alignSelf: 'center',
     flex: 1,
-    // alignContent: 'center',
-    // justifyContent: 'center',
   },
   footerBtnImg: {
     alignSelf: 'center',
-    // width: 20,
-    // height: 20,
+
   },
-  // welcome: {
-  //   fontSize: 20,
-  //   textAlign: 'center',
-  //   margin: 10,
-  // },
-  // instructions: {
-  //   textAlign: 'center',
-  //   color: '#333333',
-  //   marginBottom: 5,
-  // },
 });
 
 export default useMaterial(ItemListView);

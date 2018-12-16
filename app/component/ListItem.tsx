@@ -57,7 +57,7 @@ class ListItem extends Component<IProps, IState> {
     const { swipeoutBtns, handleCountChange } = this;
     return (
       <View style={{marginBottom: 4}}>
-        <Swipeout backgroundColor={'#F5F5F5'} right={swipeoutBtns} autoClose={true} scroll={(scrollEnabled: boolean) => { setParentScrollEnable(scrollEnabled); }} disabled={!swipeEnable}>
+        <Swipeout backgroundColor={'#F5F5F5'} right={swipeoutBtns} autoClose={true} scroll={(scrollEnabled: boolean) => { setParentScrollEnable(scrollEnabled); }} disabled={!swipeEnable} close={!swipeEnable}>
           <View style={styles.container} >
             <Image style={styles.thumb as ImageStyle} source={{ uri: image.base64 }} />
             <Text style={styles.name}>{name}</Text>

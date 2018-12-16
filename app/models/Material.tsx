@@ -28,20 +28,26 @@ const initstate: IContext = {
   actions: {},
 };
 
+interface IStorageNames {
+    materials: string;
+    stores: string;
+}
+
 const Context = createContext<IContext>(initstate); // Context 를 만듭니다.
 
 const { Provider, Consumer: MaterialConsumer } = Context;
 
 class MaterialProvider extends Component<{}, IContextValue> {
-  // sprivate materials: Array<IMaterial>;
-  // private static myInstance: MaterialManager;
-  // public static getInstance() {
-  //   return this.myInstance || (this.myInstance = new this());
-  // }
+  private stroageNames: IStorageNames;
 
   constructor(props: {}) {
     super(props);
     this.state = {materials: [], stores: {} };
+    this.stroageNames = { materials: 'MaterialList', stores: 'StoreMap' };
+  }
+
+  setStroageNames = ( names: IStorageNames ) => {
+    this.stroageNames = {...names};
   }
 
   pushStore = (name: string): string => {
@@ -75,14 +81,14 @@ class MaterialProvider extends Component<{}, IContextValue> {
         }
         complete();
       };
-      retrieveDatas(['MaterialList', 'StoreMap'], callback);
+      retrieveDatas([this.stroageNames.materials, this.stroageNames.stores], callback);
     },
     saveDataToStorage: () => {
       const callback = (dataName: string, success: boolean) => {
         console.log(dataName, success);
       };
-      storeData('MaterialList', JSON.stringify(this.state.materials)).then( (success) => callback('MaterialList', success) );
-      storeData('StoreMap', JSON.stringify(this.state.materials)).then( (success) => callback('StoreMap', success) );
+      storeData(this.stroageNames.materials, JSON.stringify(this.state.materials)).then( (success) => callback('MaterialList', success) );
+      storeData(this.stroageNames.stores, JSON.stringify(this.state.stores)).then( (success) => callback('StoreMap', success) );
     },
     addData: (material: IMaterial, store?: string) => {
       if (this.state.materials !== undefined) {
@@ -137,15 +143,12 @@ class MaterialProvider extends Component<{}, IContextValue> {
           alert('initialize' + (false !== isSuccess) ? 'success' : 'fail');
         }
       };
-      storeData('MaterialList', '[]').then( (success) => callback(success));
-      storeData('StoreMap', '{}').then((success) => callback(success));
+      storeData(this.stroageNames.materials, '[]').then( (success) => callback(success));
+      storeData(this.stroageNames.stores, '{}').then((success) => callback(success));
     },
   };
   render() {
     const { state, actions } = this;
-    // Provider 내에서 사용할 값은, "value" 라고 부릅니다.
-    // 현재 컴포넌트의 state 와 actions 객체를 넣은 객체를 만들어서,
-    // Provider 의 value 값으로 사용하겠습니다.
     const value = { state, actions };
     return (
       <Provider value={value}>

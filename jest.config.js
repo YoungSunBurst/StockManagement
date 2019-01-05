@@ -4,7 +4,7 @@ const { defaults: tsjPreset } = require("ts-jest/presets");
 module.exports = {
   ...tsjPreset,
   preset: "react-native",
-  setupTestFrameworkScriptFile: "./setup-tests.js",
+  setupTestFrameworkScriptFile: "<rootDir>setup-tests.js",
   transform: {
     ...tsjPreset.transform,
     // transform: { '^.+\\.js$': '<rootDir>/node_modules/react-native/jest/preprocessor.js' },

@@ -20,12 +20,17 @@ function copyProps(src, target) {
   });
 }
 
+window.alert = (msg) => { console.log(msg); };
+window.matchMedia = () => ({});
+window.scrollTo = () => { };
+
 global.window = window;
 global.document = window.document;
 global.navigator = {
   userAgent: "node.js"
 };
 copyProps(window, global);
+
 
 /**
  * Set up Enzyme to mount to DOM, simulate events,

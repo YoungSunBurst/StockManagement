@@ -19,6 +19,4 @@ This App can help small business to manage their inventory easier
 
 ## License
 
-Copyright (c) Microsoft Corporation. All rights reserved.
-
 Licensed under the MIT License.
